@@ -1,0 +1,709 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Einführung und Problembeschreibung
+\end_layout
+
+\begin_layout Standard
+In der folgenden Arbeit geht es darum, anhand unterschiedlicher Attribute
+ (z.B.
+ Kredithistorie, Zweck des Kredits, Vermögens- und Arbeitssituation etc.)
+ das passendste Modell zur Vorhersage der Kreditwürdigkeit eines Kunden
+ zu finden.
+ Es werden verschiedene Modelle auf ihre Vorhersagekraft geprüft wie die
+ logistische Regression, der Classification Tree, Random-Forest sowie die
+ Neural Network Methode.
+ Als Datenbasis dient uns ein Datenset deutscher Kreditanwärter im Umfang
+ von 1000 Personen.
+\end_layout
+
+\begin_layout Section
+Explorative Datenanalyse
+\end_layout
+
+\begin_layout Subsection
+Bereinigung der Daten
+\end_layout
+
+\begin_layout Standard
+Das Datenset German Credit besteht aus Daten zu 1000 Personen.
+ Die uns interessierende, abhängige Variable ist eine dichotome Variable
+ mit den Ausprägungen 1 (gutes Kreditrating) und 0 (schlechtes Kreditrating).
+ Die Verteilung ist ziemlich ungleich, denn 700 der 1000 Personen weisen
+ ein gutes Kreditrating auf.
+\end_layout
+
+\begin_layout Standard
+Bevor das Datenset genutzt werden kann, muss es um Inkonsistenzen bereinigt
+ werden.
+ Bei 2 Variablen, Guarantor und Education, mussten Rkodierungen vorgenommen
+ werden, da sie je eine Beobachtung (-1 bzw.
+ 2 ausserhalb der Range [0,1] enthielten.
+ Es ist davon auszugehen, dass es sich um einen Tippfehler handelt, hier
+ wurde in beiden Fällen der Wert 1 zugewiesen.
+ Zusätzlich wurde AGE von 125 gelöscht.
+ Bei der Variable AMOUNT handelt es sich um eine stark rechtsschiefe Variable
+ (vgl.
+ BOXPLOT).
+ Die Rechtsschiefe ist typisch für monetäre (quantitative) Variablen, deshalb
+ wird hier eine logarithmische Transformation vorgenommen um eine Verteilung
+ zu erhalten, die näher an der Normalverteilung liegt.
+ Des Weiteren werden die 3 ursprünglich als quantitative Variablen definierten
+ INSTALL_RATE, NUM_CREDITS und NUM_DEPENDENTS zu kategorialen (ordinalen)
+ Variablen umformatiert.
+ Der Grund dafür ist, weil es sich nicht um wirkliche, intervallskalierte
+ numerische Variablen, sondern um ordinale Variablen mit maximal 4 Ausprägungen
+ handelt.
+\end_layout
+
+\begin_layout Standard
+Die 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Anpassung-der-Variablen"
+
+\end_inset
+
+gibt eine Übersicht über die bereinigten Variablen und deren Anpassungen.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Anpassung-der-Variablen"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Variable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Anpassung
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+GUARANTOR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Wert -1 zu 1 geändert
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+EDUCATION
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Wert 2 zu 1 geändert
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+AMOUNT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Logarithmische Transformation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+AGE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Eliminierung der Beobachtung mit Wert 125
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+INSTALL_RATE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Umformatierung von numerisch in kategorial
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NUM_CREDITS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Umformatierung von numerisch in kategorial
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NUM_DEPENDENTS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Umformatierung von numerisch in kategorial
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nach der Bereinigung der obigen Variablen und der Eliminierung der einen
+ Beobachtung (unwahrscheinlicher Wert von 125 für AGE) umfasst das bereinigte
+ Datenset letztlich 999 Beobachtungen.
+\end_layout
+
+\begin_layout Subsection
+Deskriptive Statistik
+\end_layout
+
+\begin_layout Standard
+Wie wir in GRAFIK1sehen, handelt es sich bei über der Hälfte der Kreditanwärter
+ um junge Single-Männer.
+ Im Schnitt beträgt die Kredithöhe 3271DM und die mittlere Kreditdauer rund
+ 20 Monate.
+ Hauptsächlich werden Kredite für Alltagsgüter wie Telephonie, TV, Auto
+ oder Möbel ersucht, weniger für Bildung und Weiterbildung.
+\end_layout
+
+\begin_layout Subsection
+Selektion der qualitativen Variablen
+\end_layout
+
+\begin_layout Standard
+Vor dem Modellieren werden die Variablen, welche keine Erklärungskraft besitzen,
+ eliminiert.
+ Hierbei gehe ich 2-stufig vor: zuerst werden mittels Kreuztabellen werden
+ ex-ante kategoriale Variablen mit geringer Erklärungskraft für die abhängige
+ Variable, das Kreditrating, ausgeschlossen.
+\end_layout
+
+\begin_layout Standard
+Die univariate Analyse der abhängigen Variable zeigt, dass rund 70% der
+ Kreditanwärter ein gutes Kreditrating aufweisen.
+ 
+\end_layout
+
+\begin_layout Paragraph
+Kreuztabellen
+\end_layout
+
+\begin_layout Standard
+TODO set a correlation plot mit variables und x^2-p-values in der command
+ line
+\end_layout
+
+\begin_layout Standard
+Alle Variablen, welche Pearsonsche Korrelationskoeffizient Chi^2-Test einen
+ p-Wert von über 0.05 aufweisen, werden bereits jetzt eliminiert.
+ 
+\end_layout
+
+\begin_layout Standard
+Es gibt keinen signifikanten Zusammenhang zwischen diesen Variablen und
+ der zu erklärenden Variable Kreditrating.
+ Nichtsdestotrotz verfolgen wir einen relativ konservativen Selektionsansatz
+ und setzen das Selektionskriterium nicht zu hoch, so dass wir nciht Gefahr
+ laufen, Variablen zu eliminieren, die eventuell doch Erklärungskraft aufweisen
+ könnten (und um nicht auszuschliessen, dass z..B.
+ auch u-förmige, quadratische Zusammenhänge existieren könnten).
+ Gerade bei den nicht-dichotomen kategoriealen Variablen sind wir nicht
+ so streng, da hier der Pearson'sche Koeffizient ein zu hartes Ausscheidungskrit
+erium darstellen könne.Zum Beispiel behalten wir trotz eines p-Werts von
+ 0.14 die Variable INSTALL_RATE, da sie über 4 Kategorien verfügt sowie auch
+ die Variable JOB (wird ebenfalls behalten trotz hohem p-wert 0.59).
+ oder z.b.
+ CO-APPLICANT behalten wir auch, obwohl but p-value is only 0.047 and yates
+ continuity correction gar mit 0.07 über dem kritischen Wert von 0.05
+\end_layout
+
+\begin_layout Paragraph
+Fazit
+\end_layout
+
+\begin_layout Standard
+Viele der erklärenden Variablen erweisen sich als aufschlussreich und weisen
+ teils hoch signifikante bivariate Zusammenhänge mit dem Kreditrating auf.
+ Mit dem relativ konservativen Selektionsverfahren konnten so nur wenige
+ Variablen bereits vor dem Modellierungsprozess ausgeschlossen.
+\end_layout
+
+\begin_layout Subsection
+Selektion der quantitativen Variablen
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+Durch die Datenbereinigung sind von den ursprünglich 6 
+\begin_inset Quotes eld
+\end_inset
+
+numerischen
+\begin_inset Quotes erd
+\end_inset
+
+Variablen werden schliesslich noch 3 als numerisch definiert: AMOUNT, DURATION
+ und AGE.
+ Die zeigt
+\end_layout
+
+\begin_layout Standard
+Die Korrelationsmatrix zeigt, dass wir kaum Multikollinearitätsprobleme
+ haben.
+ Einzig zwischen AMOUNT und DURATION haben wir mit einem Korrelationskoeffizient
+en r von 0.62 einen eher hohen, aber noch einen akzeptaben Wert, um sie nachher
+ gemeinsam im logistischen Regressionsmodell zu verwenden.
+\end_layout
+
+\begin_layout Paragraph
+Graphische Analyse
+\end_layout
+
+\begin_layout Standard
+Betrachtet man die Boxplots von DURATION, AMOUNT UND AGE, so zeigen sich
+ durchaus Unterschiede in Bezug auf Mittelwert und Varianz zwischen den
+ Personen mit guter und schlechtem Kreditrating: Die Personen in der Gruppe
+ mit gutem Kreditrating sind im Durchschnitt älter, ebenso ist die Kreditdauer
+ in dieser Gruppe wesentlich höher.
+ Ein geringerer Unterschied zeigt sich auch bei der Kredithöhe, die in der
+ Gruppe mit gutem Kreditrating minim höher liegt.
+\end_layout
+
+\begin_layout Paragraph
+Logistische Regression
+\end_layout
+
+\begin_layout Standard
+Wie wir in der Korrelationsmatrix gesehen haben, ist Multikollinearität
+ kein grosses Problem, so dass wir mit geringem Vorbehalt alle 3 quantitativen
+ Variablen DURATION, AMOUNT und AGE ins logistische RegressionsModell übernehmen
+ können.
+\end_layout
+
+\begin_layout Standard
+Das folgende Modell x mit den 3 quant.
+ Variablen zeigt, dass DURATION und AGE signifikant sind, AMOUNT jedoch
+ nicht.
+\end_layout
+
+\begin_layout Standard
+Wenn wir nun aber wieder die original als numerisch definierten Variablen
+ NUM_CREDITS, NUM_DEPENDENTS und INSTALL_RATE ins Modell xy mit 6 Variablen
+ integrieren, so sehen wir, dass AMOUNT durchaus signifikant ist und also
+ keineswegs eliminiert werden sollte.
+\end_layout
+
+\begin_layout Standard
+Nun optimieren wir das log Regmodell nochmals, und eliminieren CREDIT und
+ DEPENDENTS da sie nicht signifikant sind.
+ Wir sehen dass INSTALL RATE und auch AMOUNT signifikant bleiben und wir
+ beide Variablen in der weiteren Modellierung berücksichtigen sollten, Dass
+ AMOUNT im Modell mit nur 3 Variablen nicht signifikant war, lässt darauf
+ schliessen, dass AMOUNT und DURATION sich doch erheblich beeinflussen.
+ Durch die Integration der Variable InstallRATE (sowie auch für DURATION
+ und AGE) , also wenn man für die Variable Installrate sowie auch für AGE
+ und DURATION kontrolliert (konstant hält) so wird AMOUNT durchaus signifikant
+ und man sollte diese Variable weiter berücksichtigen.
+\end_layout
+
+\begin_layout Standard
+starke Evidenz dafür, NUM_CREDITS und NUM_DEPENDENTS aus der Analyse zu
+ berücksichtigen, da sie sowohl in der log.
+ Regression keine Signifikanz aufweisen, als auch in der Kreuztabellen Analyse
+ sich keine Signifikanzen zeigten (achtung spekulativ, nochmals überprüfen
+ für NUM_DEPFENDENTS, da spuckte es keinen chi-square-test aus).
+\end_layout
+
+\begin_layout Section
+Modelling
+\end_layout
+
+\begin_layout Standard
+TODO ALLE MODELS AUF ZUERST DASSELBE TRAINING SET (aber mit korrekten 0.3/0.7
+ proportionen!) anwenden set training and test set in proportion of 0.3/0.7
+ and prporpotionalized nach geschlecht für alle 4 modelle (logReg zählt
+ auch als modell, ich kann die kat.
+ Variablen ins logRegModell integrieren)
+\end_layout
+
+\begin_layout Standard
+TODO boxplots of accuracy of all models (bootstrapping!)
+\end_layout
+
+\begin_layout Subsection
+Learning/Training Data Set
+\end_layout
+
+\begin_layout Standard
+Mache 3 verschiedene TrainingDatasets.
+ 0.3/0.7 , 0.8./0.2 und noch je mit korrekten proportionen.
+ und noch eines mit 200/200 gleiche verteilung creditratig gut und schlecht,
+ im sinne von da varianz verringern wo wir wenige beobachtungen haben
+\end_layout
+
+\begin_layout Standard
+bit rbinom sets aufteilen und p = 0.7 setzen
+\end_layout
+
+\begin_layout Subsection
+Logistische Regression
+\end_layout
+
+\begin_layout Standard
+TODO alle Variablen nach der Vorselektion.
+ Um Overfitting zu vermeiden AIC backward method nwenden
+\end_layout
+
+\begin_layout Paragraph
+Ergebnisse
+\end_layout
+
+\begin_layout Standard
+TODO Model Accuracy hier wäre SSres?
+\end_layout
+
+\begin_layout Subsection
+Classification Tree
+\end_layout
+
+\begin_layout Paragraph
+Learning Data Set
+\end_layout
+
+\begin_layout Paragraph
+Ergebnisse
+\end_layout
+
+\begin_layout Standard
+TODO guter Wert ist 0.018 und 8 Trees
+\end_layout
+
+\begin_layout Standard
+cp SE-1 to prune
+\end_layout
+
+\begin_layout Standard
+TODO smalles xerror for pruning -> 6 Trees
+\end_layout
+
+\begin_layout Subsection
+Random Forest
+\end_layout
+
+\begin_layout Paragraph
+Learning Data Set
+\end_layout
+
+\begin_layout Paragraph
+Ergebnisse
+\end_layout
+
+\begin_layout Standard
+TODO Die mittlere Linie repräsentiert die overall error rate.
+ Wir sehen anhand der oberen Linie den hohen error rate für die schlechten
+ Kreditoren, die tiefer liegende zeigt einen guten error rate für gute Kreditore
+n.
+\end_layout
+
+\begin_layout Standard
+TODO 300Trees, 5randomly selected var at each node
+\end_layout
+
+\begin_layout Standard
+TODO complexity plot -> erster Baumanzahl nehmen die unter die x-val-relative
+ Linie fällt
+\end_layout
+
+\begin_layout Subsection
+Neurale Netzwerke
+\end_layout
+
+\begin_layout Paragraph
+Learning Data Set
+\end_layout
+
+\begin_layout Standard
+TODO empfohlen 2 hidden layers of thee resp.
+ 2nodes to evade overfitting 
+\end_layout
+
+\begin_layout Paragraph
+Ergebnisse
+\end_layout
+
+\begin_layout Subsection
+K-Nearest-Neibour mit k-t (einfach durchzuführen)
+\end_layout
+
+\begin_layout Section
+Vergleich der Resultate
+\end_layout
+
+\begin_layout Standard
+TODO Möglichkeit testen um true negative rate zu erhöhen 200/200 sampling
+ (und sonst halt einfach angeben in der Konklusion dass vieles auch auf
+ menschlichen Entscheidungen und Einschätzungen beruht und Misclassifciations
+ schon in den Daten nicht ausgeschlossen sind.
+\end_layout
+
+\begin_layout Standard
+TODO vergl.
+ Accuracy für alle MOdelle und insb.
+ False Positive Rate -> können wir diese verbessern?
+\end_layout
+
+\begin_layout Standard
+mache bootstrap über alle Modelle , do f.e.
+ 100runs -> und dann accuracies in 4 boxplots für 4 modelle präsentieren
+\end_layout
+
+\begin_layout Standard
+TODO overlap of the models um zu zeigen dass prediction rate von 2 modellen
+ nicht zwangsläufig die gleichen obs.
+ abdeckt -> potenzial diese zu kombinieren und prediciton rate in kombination
+ zu erhöhen
+\end_layout
+
+\begin_layout Section
+Konklusion
+\end_layout
+
+\begin_layout Standard
+wir können ncoh nicht umfaseend zufriende sein, da False positives ist grösstes
+ Problem, wenn Kredite versehentlich an schlechte Debitoren gegeben werden
+\end_layout
+
+\begin_layout Standard
+Welche Personen geben wir Kredit und welche Variablen sind dafür ausschlaggebend
+e Kriterien (und mit welchem Schwellenwert).
+ 
+\end_layout
+
+\begin_layout Standard
+Modellauswahl begründen
+\end_layout
+
+\begin_layout Standard
+nicht zwingend das Modell mit der besten Vorhersage, sondern das simpelste
+ am besten zu verstehende (in die Lage des Kunden versetzen) als Empfehlung
+\end_layout
+
+\begin_layout Standard
+NN: zu sehr blackbox, nur wenig tauglich und nachvollziehbar und viel zu
+ computieren
+\end_layout
+
+\begin_layout Standard
+CT: etwas unstabil, aber hohe Nachvollziehbarkeit
+\end_layout
+
+\begin_layout Standard
+RT: stabil, way to go.
+\end_layout
+
+\begin_layout Standard
+logReg: auch gute Methode und nachvollziehbare Methode
+\end_layout
+
+\begin_layout Standard
+Kombination: Die 4 verschiedenen Methoden stützen die einflussreichsten
+ Variablen und machen sie robust.
+\end_layout
+
+\end_body
+\end_document
