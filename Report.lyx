@@ -78,7 +78,7 @@ Einführung und Problembeschreibung
 In der folgenden Arbeit geht es darum, anhand unterschiedlicher Attribute
  (z.B.
  Kredithistorie, Zweck des Kredits, Vermögens- und Arbeitssituation etc.)
- das passendste Modell zur Vorhersage der Kreditwürdigkeit eines Kunden
+ das passendste Modell zur Vorhersage zum Kreditrating eines Kreditanwärters
  zu finden.
  Es werden verschiedene Modelle auf ihre Vorhersagekraft geprüft wie die
  logistische Regression, der Classification Tree, Random-Forest sowie die
@@ -124,10 +124,17 @@ Bevor das Datenset genutzt werden kann, muss es um Inkonsistenzen bereinigt
  Der Grund dafür ist, weil es sich nicht um wirkliche, intervallskalierte
  numerische Variablen, sondern um ordinale Variablen mit maximal 4 Ausprägungen
  handelt.
+ Weil NUM_CREDITS für die Ausprägungen 3 und 4 nur 28 bzw.
+ 6 Observationen hatte und so ein Chi
+\begin_inset Formula $^{2}$
+\end_inset
+
+-Test nicht sehr geeignet ist, wurde diese Variable dichotomisiert in zwei
+ Kategorien (Anzahl existierender Kredite bei dieser Bank: 1 und >1)
 \end_layout
 
 \begin_layout Standard
-Die 
+Die Tabelle 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "tab:Anpassung-der-Variablen"
@@ -147,6 +154,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
+Angepasste Variablen
 \begin_inset CommandInset label
 LatexCommand label
 name "tab:Anpassung-der-Variablen"
@@ -161,12 +169,9 @@ name "tab:Anpassung-der-Variablen"
 
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
+\begin_layout Plain Layout
+\noindent
+\align center
 \begin_inset Tabular
 <lyxtabular version="3" rows="8" columns="2">
 <features tabularvalignment="middle">
@@ -206,7 +211,7 @@ GUARANTOR
 \begin_inset Text
 
 \begin_layout Plain Layout
-Wert -1 zu 1 geändert
+Eliminierung der Beobachtung mit Wert -1
 \end_layout
 
 \end_inset
@@ -226,27 +231,7 @@ EDUCATION
 \begin_inset Text
 
 \begin_layout Plain Layout
-Wert 2 zu 1 geändert
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-AMOUNT
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Logarithmische Transformation
+Eliminierung der Beobachtung mit Wert 2
 \end_layout
 
 \end_inset
@@ -267,6 +252,26 @@ AGE
 
 \begin_layout Plain Layout
 Eliminierung der Beobachtung mit Wert 125
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+AMOUNT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Logarithmische Transformation
 \end_layout
 
 \end_inset
@@ -306,7 +311,7 @@ NUM_CREDITS
 \begin_inset Text
 
 \begin_layout Plain Layout
-Umformatierung von numerisch in kategorial
+Umformatierung von numerisch in binär
 \end_layout
 
 \end_inset
@@ -339,10 +344,15 @@ Umformatierung von numerisch in kategorial
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
-Nach der Bereinigung der obigen Variablen und der Eliminierung der einen
- Beobachtung (unwahrscheinlicher Wert von 125 für AGE) umfasst das bereinigte
- Datenset letztlich 999 Beobachtungen.
+Nach der Bereinigung der obigen Variablen und der Eliminierung der drei
+ Beobachtungen mit ungewöhnlichen Werten umfasst das bereinigte Datenset
+ letztlich noch 997 Beobachtungen.
 \end_layout
 
 \begin_layout Subsection
@@ -365,9 +375,9 @@ Selektion der qualitativen Variablen
 \begin_layout Standard
 Vor dem Modellieren werden die Variablen, welche keine Erklärungskraft besitzen,
  eliminiert.
- Hierbei gehe ich 2-stufig vor: zuerst werden mittels Kreuztabellen werden
- ex-ante kategoriale Variablen mit geringer Erklärungskraft für die abhängige
- Variable, das Kreditrating, ausgeschlossen.
+ Hierbei gehe ich 2-stufig vor: zuerst werden mittels Kreuztabellen ex-ante
+ kategoriale Variablen mit geringer Erklärungskraft für die abhängige Variable,
+ das Kreditrating, ausgeschlossen.
 \end_layout
 
 \begin_layout Standard
@@ -386,8 +396,11 @@ TODO set a correlation plot mit variables und x^2-p-values in der command
 \end_layout
 
 \begin_layout Standard
-Alle Variablen, welche Pearsonsche Korrelationskoeffizient Chi^2-Test einen
- p-Wert von über 0.05 aufweisen, werden bereits jetzt eliminiert.
+Alle Variablen, welche Pearsonsche Korrelationskoeffizient Chi
+\begin_inset Formula $^{2}$
+\end_inset
+
+-Test einen p-Wert von über 0.05 aufweisen, werden bereits jetzt eliminiert.
  
 \end_layout
 
@@ -409,15 +422,1377 @@ erium darstellen könne.Zum Beispiel behalten wir trotz eines p-Werts von
  continuity correction gar mit 0.07 über dem kritischen Wert von 0.05
 \end_layout
 
-\begin_layout Paragraph
-Fazit
+\begin_layout Standard
+Etwas überraschend ist die Variable CHK_ACCT, da die Kategorie 3 (no checking
+ account) als die höchste eingestuft wurde.
+ Eine Umkodierung (bsp.
+ no-checking account) als tiefste Kategorie.
+ Dies wurde aber verworfen, da die Kreuztabelle und der Chi
+\begin_inset Formula $^{2}$
+\end_inset
+
+-Test tatsächlich einen hohen Zusammenhang sehen zwischen 
+\begin_inset Quotes eld
+\end_inset
+
+no checking account
+\begin_inset Quotes erd
+\end_inset
+
+ und gutem Kreditvergabe.
+ Die unterliegenden Mechanismen kennen wir nicht, es kann aber sein, offenbar
+ scheint die Bank aber ein grösseres Vertrauenin einen Kunden zu haben,
+ wenn er kein Bankkonto bei dieser Bank besitzt.
 \end_layout
 
 \begin_layout Standard
-Viele der erklärenden Variablen erweisen sich als aufschlussreich und weisen
- teils hoch signifikante bivariate Zusammenhänge mit dem Kreditrating auf.
- Mit dem relativ konservativen Selektionsverfahren konnten so nur wenige
- Variablen bereits vor dem Modellierungsprozess ausgeschlossen.
+Etwas ungewöhnlich ist die kontraintuitive Beziehung zwischen HISTORY und
+ dem Kreditrating, so steigt die W'keit, einen Kredit zu erhalten, je schlechter
+ die Kredithistorie ist (0=gut, 4=kritischer Account).
+ Dies könnte auf eine umgekehrte Kausalrichtung hindeuten, so dass eben
+ nicht Kredithistory das Kreditrating beeinflusst, sondern die Kreditvergabe
+ die Kredithistorie, d.h.
+ unter denen mit einem (vermeintlich) guten Kreditrating, welche folglich
+ auch einen Kredit erhielten, steigt die CHance auf eine schlechte Kredithistori
+e eher als bei denen, die gar keinen Kredit erhalten (und demnach keine
+ grosse Kredithistorie ahben).
+ Dies sollten wir bei der Interpretation am Schluss im Hinterkopf behalten,
+ da es HISTORY als Einflussvariable doch stark relativiert, da es theoretisch
+ keienen Sinn amcht, jenen mit schlechter Kredithistorie Kredite zu verleihe.
+ Dies könnte auch darauf hindeuten, dass, die 
+\begin_inset Quotes eld
+\end_inset
+
+von Hand gemachte
+\begin_inset Quotes erd
+\end_inset
+
+ Misklassifikation, also die durch Menschen gemachte Falscheinschätzung
+ der Kreditanwärter, nicht zu unterschätzen ist.
+\end_layout
+
+\begin_layout Standard
+(eine Möglichkeit könnte aber auch sein, dass das juristische Nachspiel
+ und die Betreibung für die Banken lukrativ ist und zum Geschäftsmodell
+ wird? Im Vergleich zu anderen Variablen, wo eine gute finanzielle Basis
+ positiv mit Kreditrating korreliert (wie z.B.
+ SAV_ACCT) ist dass daher eher auszuschliessen und daher die These, dass
+ HISTORY und Kreditratin in einem umgekehrten Kausalverhältnis stehen, eher
+ anzunehmen.)
+\end_layout
+
+\begin_layout Standard
+Ebenso auf den ersten Blick ungewöhnlich ist die höchste Kategorie 3 bei
+ CHK_ACCT (kein Bankaccount) und dass diese Kategorie am stärksten positiv
+ mit einem guten Kreditrating korreliert.
+ Es lässt sich aber durch das Geschäftsmodell erklären, dass Banken es vorziehen
+ neue Kunden durch Kreditvergabe zu akquirieren, und dadurch eine hohe Korrelati
+on zwischen gutem Kreditrating und keinem Bankkonto resultiert.
+ Dasselbe gilt für die Variable SAV_ACCT, wo die höchste Kategorie 4 ebenfalls
+ diejenige ohne Konto bei der Bank ist (
+\begin_inset Quotes eld
+\end_inset
+
+unknown/no savings account
+\begin_inset Quotes erd
+\end_inset
+
+), in dieser Kategorie befindet sich dann auch ein sehr hoher Anteil Personen
+ mit gutem Kreditrating (82%).
+\end_layout
+
+\begin_layout Standard
+Die Tabelle 
+\begin_inset CommandInset label
+LatexCommand label
+name "Die-Tabelle-zeigt"
+
+\end_inset
+
+ zeigt eine Übersicht über die Ergebnisse der Chi
+\begin_inset Formula $^{2}$
+\end_inset
+
+-Tests zu den kategorialen Variablen.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Chi
+\begin_inset Formula $^{2}$
+\end_inset
+
+-Tests der kategorialen Variablen
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Chi-Tests-der-kategorialen"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="32" columns="4">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Variable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Anzahl Ausprägungen
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Chi
+\begin_inset Formula $^{2}$
+\end_inset
+
+-Wert
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+p-Wert
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CHK_ACCT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+122.5771
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.14961e-26***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+HISTORY
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+61.34634
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.511828e-12***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NEW_CAR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.761682 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.003076252***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+USED_CAR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.948736 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.001609599***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RADIO_TV
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11.13343
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0008478583***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+EDUCATION
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.73369 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.02957736**
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SAV_ACCT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.63021
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.447498e-07 ***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+EMPLOYMENT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+19.12068 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0007441756*** 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MALE_SINGLE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.997246
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.008163521***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CO-APPLICANT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.941788 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.04710069**
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+REAL_ESTATE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13.90414 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0001923746***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PROP_UNKN_NONE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14.14871 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0001689126***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+OTHER_INSTALL
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12.04277 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.000519936***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RENT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.635429
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.003296875***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+OWN_RES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+17.31317 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.169823e-05***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+FOREIGN
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.732068*** 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.009469476***
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+GUARANTOR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.759374 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.09668607*
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+FURNITURE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.4444726 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.5049716
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RETRAINING
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.311172 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.2521826
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+INSTALL_RATE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.231483 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1556107
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MALE_DIV
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.512174
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.11297
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MALE_MAR_WID
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.3022673
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.5824645 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PRESENT_RESIDENT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.7507233 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8612133
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NUM_CREDITS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.66012
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.447047 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NUM_DEPENDENTS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+TELEPHONE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.134547 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.2868075
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+JOB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.545292
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.6718572
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Wie wir sehen, erweisen sich viele der qualitativen Variablen als aufschlussreic
+h, sie weisen teils hoch signifikante bivariate Zusammenhänge mit dem Kreditrati
+ng auf.
+ Nur 10 Variablen können eliminiert werden.
+ Alle anderen 
 \end_layout
 
 \begin_layout Subsection
@@ -425,11 +1800,8 @@ Selektion der quantitativen Variablen
 \end_layout
 
 \begin_layout Standard
-
-\end_layout
-
-\begin_layout Standard
-Durch die Datenbereinigung sind von den ursprünglich 6 
+Durch die vorherige Datenbereinigung definieren wir von den ursprünglich
+ 6 
 \begin_inset Quotes eld
 \end_inset
 
@@ -437,31 +1809,127 @@ numerischen
 \begin_inset Quotes erd
 \end_inset
 
-Variablen werden schliesslich noch 3 als numerisch definiert: AMOUNT, DURATION
- und AGE.
- Die zeigt
+ Variablen nur noch 3 als numerisch: AMOUNT, DURATION und AGE.
+ Betrachtet man die Boxplots von DURATION, AMOUNT UND AGE in Figure 1 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Boxplots"
+
+\end_inset
+
+, so zeigen sich durchaus Unterschiede in Bezug auf Mittelwert und Varianz
+ zwischen den Personen mit gutem und schlechtem Kreditrating: Personen mit
+ einem guten Kreditrating sind im Durchschnitt älter, ebenso ist liegt die
+ Kreditdauer für diese Gruppe tiefer.
+ Ein kleiner Unterschied zeigt sich auch beim Kreditumfang, der in der Gruppe
+ mit gutem Kreditrating im Durchschnitt geringer ist.
+ 
 \end_layout
 
 \begin_layout Standard
-Die Korrelationsmatrix zeigt, dass wir kaum Multikollinearitätsprobleme
- haben.
- Einzig zwischen AMOUNT und DURATION haben wir mit einem Korrelationskoeffizient
-en r von 0.62 einen eher hohen, aber noch einen akzeptaben Wert, um sie nachher
- gemeinsam im logistischen Regressionsmodell zu verwenden.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Boxplots
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Boxplots"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/Boxplots.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Paragraph
-Graphische Analyse
+Multikollinearitätstest
 \end_layout
 
 \begin_layout Standard
-Betrachtet man die Boxplots von DURATION, AMOUNT UND AGE, so zeigen sich
- durchaus Unterschiede in Bezug auf Mittelwert und Varianz zwischen den
- Personen mit guter und schlechtem Kreditrating: Die Personen in der Gruppe
- mit gutem Kreditrating sind im Durchschnitt älter, ebenso ist die Kreditdauer
- in dieser Gruppe wesentlich höher.
- Ein geringerer Unterschied zeigt sich auch bei der Kredithöhe, die in der
- Gruppe mit gutem Kreditrating minim höher liegt.
+Die Korrelationsmatrix in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Korrelationsmatrix"
+
+\end_inset
+
+ zeigt, dass wir geringe Multikollinearitätsprobleme haben.
+ Zwar korrelieren das logarithmierte AMOUNT und AGE sowie DURATION und AGE
+ überhaupt nicht (r-Werte von 0.3 resp.
+ 0.4) Zwischen dem logarithmisierten AMOUNT und DURATION haben wir mit einem
+ Korrelationskoeffizienten r von 0.64 zwar einen eher hohen, aber noch akzeptable
+n Wert.
+ Wir können daher mit etwas Vorsicht alle drei Variablen ins folgende logistisch
+e Regression übernehmen, um herauszufinden, ob die Variablen signifikant
+ sind.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Korrelationsmatrix
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Korrelationsmatrix"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename Grafiken/definitiv used/multicorplot.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Paragraph
@@ -469,60 +1937,1571 @@ Logistische Regression
 \end_layout
 
 \begin_layout Standard
-Wie wir in der Korrelationsmatrix gesehen haben, ist Multikollinearität
- kein grosses Problem, so dass wir mit geringem Vorbehalt alle 3 quantitativen
- Variablen DURATION, AMOUNT und AGE ins logistische RegressionsModell übernehmen
- können.
+Die logistische Regression dient an dieser Stelle der Selektion der quantitative
+n Variablen und hat noch nichts mit dem später folgenden logistischen Regression
+smodell zu tun (welches auch die relevanten kategorialen Variablen einschliesst).
+ Die logistische Regression dient dazu, festzustellen, ob die 3 quantitativen
+ Variablen einen signifikanten Einfluss auf die abhängige Variable Kreditrating
+ ausüben.
+ Falls ja, werden sie in der anschliessenden Modellierung berücksicht.
 \end_layout
 
 \begin_layout Standard
-Das folgende Modell x mit den 3 quant.
- Variablen zeigt, dass DURATION und AGE signifikant sind, AMOUNT jedoch
- nicht.
+Das folgende Modell in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:logistische-Regression-mit"
+
+\end_inset
+
+zeigt Signifikanzen für DURATION und AGE, jedoch nicht für das logarithmisierte
+ AMOUNT.
+ Die bivariate logistische Regression mit dem logarithmisierten AMOUNT als
+ Regressor (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bivariate-logistische-Regression"
+
+\end_inset
+
+) weist zwar einen signifikanten Zusammenhang zwischen dem logarithmisierten
+ AMOUNT und dem Kreditrating aus.
+ Da diese Signifikanz jedoch wegfällt, wenn man für die Variablen DURATION
+ und AGE kontrolliert (multivariate Regression), müssen wir davon ausgehen,
+ dass AMOUNT keine signifikante Variable ist und der Zusammenhang in der
+ bivariaten Regression lediglich eine Scheinkorrelation war.
+ Deshalb eliminieren wir die Variable AMOUNT bereits jetzt, um zu vermeiden,
+ dass die Variable AMOUNT in der späteren Modellierung auf negative Weise
+ mit anderen Variablen interferiert.
 \end_layout
 
 \begin_layout Standard
-Wenn wir nun aber wieder die original als numerisch definierten Variablen
- NUM_CREDITS, NUM_DEPENDENTS und INSTALL_RATE ins Modell xy mit 6 Variablen
- integrieren, so sehen wir, dass AMOUNT durchaus signifikant ist und also
- keineswegs eliminiert werden sollte.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Multivariate logistische Regression mit DURATION, AGE und AMOUNT als Regressoren
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:logistische-Regression-mit"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/logReg_3regressor.PNG
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Nun optimieren wir das log Regmodell nochmals, und eliminieren CREDIT und
- DEPENDENTS da sie nicht signifikant sind.
- Wir sehen dass INSTALL RATE und auch AMOUNT signifikant bleiben und wir
- beide Variablen in der weiteren Modellierung berücksichtigen sollten, Dass
- AMOUNT im Modell mit nur 3 Variablen nicht signifikant war, lässt darauf
- schliessen, dass AMOUNT und DURATION sich doch erheblich beeinflussen.
- Durch die Integration der Variable InstallRATE (sowie auch für DURATION
- und AGE) , also wenn man für die Variable Installrate sowie auch für AGE
- und DURATION kontrolliert (konstant hält) so wird AMOUNT durchaus signifikant
- und man sollte diese Variable weiter berücksichtigen.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Bivariate logistische Regression mit AMOUNT als Regressor
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bivariate-logistische-Regression"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/logReg_bivariat_amount.PNG
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+Synthese Explorative Datenanalyse
 \end_layout
 
 \begin_layout Standard
-starke Evidenz dafür, NUM_CREDITS und NUM_DEPENDENTS aus der Analyse zu
- berücksichtigen, da sie sowohl in der log.
- Regression keine Signifikanz aufweisen, als auch in der Kreuztabellen Analyse
- sich keine Signifikanzen zeigten (achtung spekulativ, nochmals überprüfen
- für NUM_DEPFENDENTS, da spuckte es keinen chi-square-test aus).
+Als Kondensat der explorativen Datenanalyse gibt die Tabelle 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Übersicht-über-die"
+
+\end_inset
+
+eine abschliessende Übersicht über die Variablen, die für die anschliessende
+ Modellierung berücksichtigt werden.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Übersicht über die selektierten Variablen
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Übersicht-über-die"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="24" columns="6">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Variable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Typ
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Beschreibung
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Range
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mittelwert
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RESPONSE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CHK_ACCT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kategorial
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+HISTORY
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kategorial
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NEW_CAR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+USED_CAR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RADIO_TV
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+EDUCATION
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SAV_ACCT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kategorial
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+EMPLOYMENT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kategorial
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MALE_SINGLE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CO-APPLICANT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+REAL_ESTATE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PROP_UNKN_NONE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+OTHER_INSTALL
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RENT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+OWN_RES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+FOREIGN
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+binär
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DURATION
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+numerisch
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+AGE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+numerisch
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
-Modelling
+Modellierung
+\end_layout
+
+\begin_layout Subsection
+Erstellenvon Trainings- und Testdatensätzen
 \end_layout
 
 \begin_layout Standard
-TODO ALLE MODELS AUF ZUERST DASSELBE TRAINING SET (aber mit korrekten 0.3/0.7
- proportionen!) anwenden set training and test set in proportion of 0.3/0.7
- and prporpotionalized nach geschlecht für alle 4 modelle (logReg zählt
- auch als modell, ich kann die kat.
- Variablen ins logRegModell integrieren)
-\end_layout
-
-\begin_layout Standard
-TODO boxplots of accuracy of all models (bootstrapping!)
+Vor der Modellierung wird der Datensatz zunächst partitioniert in ein Trainings-
+ und ein Testdatensatz.
+ Anschliessend sollen die 4 Modelle (logistische Regression, Classification
+ Tree, Random Forest und Neural Network) darauf getestet werden, wie gut
+ der Trainingsdatensatz den Testdatensatz vorhersagen kann.
+ Der Datensatz wird im Verhältnis von 70:30 zu partitioniert, so dass per
+ Randomverfahren 70% der Beobachtungen dem Trainingsdatensatz zugeordnet
+ werden und 30% dem Testdatensatz.
+ Aufgrund der doch relativ kleinen Stichprobe im Testdatensatz von 300 Beobachtu
+ngen werden mittels Bootstrap-Verfahren (1000 Bootstrap-Runden) durchgeführt.
+ Dies bringt uns näher an die empirische Verteilungsfunktion der Variablen
+ und garantiert uns stabilere Resultate.
+ Insbesondere für die Modellierung des Classification-Trees ist das wichtig,
+ da er in der Regel das instabilste Modell ist und durch den Boots-Trap
+ dieser Nachteil reduziert werden kann.
+ Wir sehen uns bestätigt, dass das Bootstrap-Verfahren ein gut proportioniertes
+ Trainings- und Testdatensatz kreiert: So entspricht der Anteil der Personen
+ mit gutem Kreditrating im Trainingsdatensatz und im Testdatensatz approximativ
+ der Verteilung im originalen Datensatz (698:299).
 \end_layout
 
 \begin_layout Subsection
@@ -581,8 +3560,199 @@ cp SE-1 to prune
 TODO smalles xerror for pruning -> 6 Trees
 \end_layout
 
+\begin_layout Standard
+Um einen Classification Tree zu modellieren, müssen wir zuerst die Anzahl
+ Bäume bestimmen.
+ Hierfür wird zuerst ein Modell mit so vielen Bäumen wie möglich angenommen.
+ Danach wird der Baum 
+\begin_inset Quotes eld
+\end_inset
+
+gestutzt
+\begin_inset Quotes erd
+\end_inset
+
+ (pruned) auf die meist relevanten Nodes.
+ Wir können der Figure entnehmen, dass der Cross-Validation-Error den geringsten
+ Wert bei der Baumanzahl xy annimmt.
+ Wir erhalten anschliessend ein Modell, dass die Variable CHK_ACCT als mit
+ Abstand wichtigste Variable ausweist.
+ Durch einen Bankaccount mit einem Wert von 2 (>200DM) oder 3( kein Bankkonto
+ vorhanden, zwecks Kundenakquirierung) können bereits für 46% aller Personen
+ mit gutem Kreditrating vorhergesagt werden.
+ Zweitwichtigste Variable ist DURATION.
+ Selbst wenn CHK_ACCT relativ schlechte Werte annimmt (<200DM) kann immer
+ noch ein gutes Kreditrating erreicht werden, wenn dafür die Kreditdauer
+ unter 22 Monaten liegt.
+ Wenn der Kreditanwärter über schlechte CHK_ACCT Werte verfügt und auch
+ noch eine Kreditdauer von über 22 Monaten beantragt, dann kommen weiterführende
+ Selektionskriterien zur Bestimmung eines guten Kreditratings ins Spiel,
+ wie die Reserven auf dem Sparkonto (SAV_ACCT) und der Zweck des Kredits.
+ Hier kann dann letztlich der Wunsch nach einem Gebrauchtwagen noch zu einem
+ positiven Kreditrating führen.
+\end_layout
+
 \begin_layout Subsection
 Random Forest
+\end_layout
+
+\begin_layout Standard
+Die Random-Forest-Methode ist ebenfalls ein Klassifikationsverfahren, das
+ aber aus unterschiedlichen, unkorrelierten Decision-Trees besteht.
+ Alle Decision-Trees sind durch Randomisierung während des Trainingsprozesses
+ gewachsen.
+ Jeder Tree darf eine Entscheidung treffen und die Klasse mit den meisten
+ Stimmen entscheidet die finale Klassifikation.
+ Dank seiner Robustheit dient uns der Random-Forest auch dazu, die Instabilität
+ des Classification Tree auszugleichen und dessen Ergebnisse gewissermassen
+ zu plausibilisieren.
+ Der Nachteil des Random-Forests liegt darin, dass die Ergebnisse durch
+ Variablen mit vielen Kategorien verzerrt werden können.
+ Die meisten unserer Variablen verfügen aber über 4 Kategorien.
+ Deshalb ist der Random-Forest für unser Datensatz gut geeignet.
+ Für die Modellierung des Random-Forests benutzen wir ebenfalls den Trainingsdat
+ensatz mit den bereits aus der explorativen Datenanalyse vorselektierten
+ Variablen.
+ Wie wir der Grafik 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Einflussreichste-Variablen-gemäs"
+
+\end_inset
+
+entnehmen können, werden die Ergebnisse aus dem Classification Tree sehr
+ stark durch den Random Forest gestützt.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Einflussreichste Variablen gemäss Random Forest Modell
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Einflussreichste-Variablen-gemäs"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align left
+\begin_inset Graphics
+	filename Grafiken/definitiv used/gcRFMeanDecreasingAcc.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Die Tabelle mit den MeanDecreaseAccuracy weist ebenfalls den Bankkontostatus
+ (CHK_ACCT) als wichtigste erklärende Variable aus.
+ Ohne CHK_ACCT würde das Modell im Durchschnitt über 30% an Akkurität (Accuracy)
+ verlieren.
+ Ebenfalls spielt die Kreditdauer (DURATION) eine wichtige Rolle sowie die
+ Bilanz auf dem Sparkonto (SAV_ACCT).
+ Dies stützt sehr stark die Glaubwürdigkeit des Classification Trees, welcher
+ ebenfalls die Variablen CHK_ACCT, DURATION, AMOUNT und SAV_ACCT als die
+ wichtigsten Einflussvariablen ausweist.
+ Im Gegensatz zum Classification Tree zeigt der Random-Forest aber auch
+ noch, dass der Kaufzweck (neues Auto, beim Classification Tree war es altes
+ Auto) sowie sozioökonomische Variablen wie der Beschäftigungsstatus (EMPLOYMENT
+) durchaus einen Einfluss auf das Kreditrating haben.
+ Ohne EMPLOYMENT würde sich vor allem der durchschnittliche GINI-Wert reduzieren.
+ EMPLOYMENT ist dagegen nicht so wichtig, wenn es um die Accuracy des Modells
+ geht, was letztlich für uns wichtiger ist, da wir möglichst gute Vorhersagen
+ treffen wollen.
+\end_layout
+
+\begin_layout Standard
+Was die Vorhersage-Performance betrifft, so zeigt sich beim Random Forest
+ ein ähnliches Verhalten wie beim Classification Tree.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Vorhersage-Fehler des Random Forests
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Vorhersage-Fehler-des-Random"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/gcRF.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Grafik zeigt in Abhängigkeit der Anzahl Bäume den Vorhersage-Fehler.
+ Die mittlere Linie gibt den overall-Fehler an, welcher sich bei einem Wert
+ unter knapp 0.3 einpendelt.
+ Die unterste Linie gibt an, wie gut wir in der Lage sind, Personen mit
+ gutem Kreditrating vorherzusagen.
+ Wie schon beim Classification Tree sehen wir, dass wir auch hier einen
+ sehr guten Wert um ungefähr 0.1 erreichen, also etwa 90% der guten Kreditratings
+ korrekt vorhersagen.
+ Hingegen fahren wir auch mit der Random Forest Methode schlecht, wenn es
+ darum geht, ein schlechtes Kreditrating vorherzusagen.
+ Hier pendelt sich der Fehler bei rund 0.6 ein, ergo werden nur rund 40%
+ aller schlechten Kreditratings korrekt vorhergesagt.
 \end_layout
 
 \begin_layout Paragraph
@@ -610,7 +3780,16 @@ TODO complexity plot -> erster Baumanzahl nehmen die unter die x-val-relative
 \end_layout
 
 \begin_layout Subsection
-Neurale Netzwerke
+Neural Network
+\end_layout
+
+\begin_layout Standard
+Eine weitere Methode, eine Klassifizierung vorzunehmen, bietet die Neural
+ Network Methode.
+ Hierbei werden die Einflussvariablen entsprechend gewichtet.
+ Empfohlen ist, die Hidden Layers auf 2 bis 3 Nodes zu beschränken um Overfittin
+g zu vermeiden.
+ Wir sehen hier ebenfalls
 \end_layout
 
 \begin_layout Paragraph
@@ -703,6 +3882,11 @@ logReg: auch gute Methode und nachvollziehbare Methode
 \begin_layout Standard
 Kombination: Die 4 verschiedenen Methoden stützen die einflussreichsten
  Variablen und machen sie robust.
+\end_layout
+
+\begin_layout Standard
+Die Möglichkeiten des Datensatzes sind begrenzt, um bessere Vorhersagen
+ für
 \end_layout
 
 \end_body
