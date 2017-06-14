@@ -4257,7 +4257,7 @@ name "fig:Boxplots"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/Boxplots.png
+	filename Grafiken/Boxplots.png
 
 \end_inset
 
@@ -4380,7 +4380,7 @@ name "fig:Korrelationsmatrix"
 
 
 \begin_inset Graphics
-	filename Grafiken/definitiv used/multicorplot.png
+	filename Grafiken/multicorplot.png
 
 \end_inset
 
@@ -4590,7 +4590,7 @@ name "fig:logistische-Regression-mit"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/logReg_3regressor.PNG
+	filename Grafiken/logReg_3regressor.PNG
 
 \end_inset
 
@@ -4641,7 +4641,7 @@ name "fig:bivariate-logistische-Regression"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/logReg_bivariat_amount.PNG
+	filename Grafiken/logReg_bivariat_amount.PNG
 
 \end_inset
 
@@ -6319,7 +6319,7 @@ name "fig:logistisches-Regressionsmodell-m"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/logreg_model1.PNG
+	filename Grafiken/logreg_model1.PNG
 
 \end_inset
 
@@ -6581,7 +6581,7 @@ name "fig:reduziertes-logistisches-Modell"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/logreg_model_reduced.PNG
+	filename Grafiken/logreg_model_reduced.PNG
 
 \end_inset
 
@@ -6917,7 +6917,7 @@ name "fig:Cross-Validation-Error-vs-Baumgr"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/def CT xvalerror.png
+	filename Grafiken/def CT xvalerror.png
 
 \end_inset
 
@@ -7030,7 +7030,7 @@ name "fig:Classification-Tree-mit"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/cart_ct_4nodes.png
+	filename Grafiken/cart_ct_4nodes.png
 
 \end_inset
 
@@ -7349,7 +7349,7 @@ name "fig:Einflussreichste-Variablen-gemäs"
 \begin_layout Plain Layout
 \align left
 \begin_inset Graphics
-	filename Grafiken/definitiv used/gcRFMeanDecreasingAcc.png
+	filename Grafiken/gcRFMeanDecreasingAcc.png
 	rotateAngle 90
 
 \end_inset
@@ -7531,7 +7531,7 @@ name "fig:Vorhersage-Fehler-des-Random"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/gcRF.png
+	filename Grafiken/gcRF.png
 
 \end_inset
 
@@ -7711,7 +7711,7 @@ name "fig:Einflussreichste-Variablen-gemäs-1"
 \noindent
 \align center
 \begin_inset Graphics
-	filename Grafiken/definitiv used/NNnet_alle.png
+	filename Grafiken/NNnet_alle.png
 
 \end_inset
 
