@@ -7004,10 +7004,6 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
@@ -8525,8 +8521,8 @@ Anhang R-Code
 \begin_layout Standard
 \begin_inset CommandInset include
 LatexCommand lstinputlisting
-filename "Report_v12.R"
-lstparams "caption={Sourcecode from file Report\\_v12.R. Changeme!!!},label={lst:sourcecode}"
+filename "Sources/Report.R"
+lstparams "caption={Sourcecode of analysis script},label={lst:sourcecode}"
 
 \end_inset
 
