@@ -319,26 +319,10 @@ gcform_full=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADI
 # After we predict using testing data, and compare the missclassification errors
 # Finally, we select the model with smaller error which will be lately compared with the other classification models
 
-mylogit  <- glm(gcform_full, data = training_full, family = "binomial")
 mylogit1 <- glm(gcform_model1, data = training1, family = "binomial")
-mylogit2 <- glm(gcform_model2, data = training2, family = "binomial")
-mylogit3 <- glm(gcform_model3, data = training3, family = "binomial")
+
 summary(mylogit)
 summary(mylogit1)
-summary(mylogit2)
-summary(mylogit3)
-mylogit$aic
-mylogit1$aic
-mylogit2$aic
-mylogit3$aic
-# Predictions
-# Model FULL
-logit_pred <- predict(mylogit, newdata = testing_full, type = "response")
-logit_model_pred <- rep("0", length(testing_full$RESPONSE))
-logit_model_pred[logit_pred > 0.5] <- "1"
-logit_cm <- table(logit_model_pred, testing_full$RESPONSE)
-# Misclassification error
-logit_error <- 1 - sum(diag(logit_cm))/sum(logit_cm)
 
 # Model 1
 logit_pred1 <- predict(mylogit1, newdata = testing1, type = "response")
@@ -346,46 +330,26 @@ logit_pred1 <- predict(mylogit1, newdata = testing1, type = "response")
 logit_model_pred1 <- rep("0", length(testing1$RESPONSE))
 logit_model_pred1[logit_pred1 > 0.5] <- "1"
 logit_cm1 <- table(logit_model_pred1, testing1$RESPONSE)
+logit_cm1
 # Misclassification error
 logit_error1 <- 1 - sum(diag(logit_cm1))/sum(logit_cm1)
-
-# Model 2
-logit_pred2 <- predict(mylogit2, newdata = testing2,type = "response")
-# Confusion matrix
-logit_model_pred2 <- rep("0", length(testing2$RESPONSE))
-logit_model_pred2[logit_pred2 > 0.5] <- "1"
-logit_cm2 <- table(logit_model_pred2, testing2$RESPONSE)
-# Misclassification error
-logit_error2 <- 1 - sum(diag(logit_cm2))/sum(logit_cm2)
-
-# Model 3
-logit_pred3 <- predict(mylogit3, newdata = testing3,type = "response")
-# Confusion matrix
-logit_model_pred3 <- rep("0", length(testing3$RESPONSE))
-logit_model_pred3[logit_pred3 > 0.5] <- "1"
-logit_cm3 <- table(logit_model_pred3, testing3$RESPONSE)
-# Misclassification error
-logit_error3 <- 1 - sum(diag(logit_cm3))/sum(logit_cm3)
-
-# Comparing errors
-logit_error
 logit_error1
-logit_error2
-logit_error3
-# Best model is the third one
-# Nevertheless, error is too high 26.1%
-# and we do not do so well in classifying Bad credit
 
-# Comparing all confusion matrices
-round(prop.table(logit_cm),2)
-round(prop.table(logit_cm1),2)
-round(prop.table(logit_cm2),2)
-round(prop.table(logit_cm3),2)
-# The error of classifying someone with Bad credit as Good credit is higher than
-# the error of classifying someone with Good credit as Bad credit
+#Reducing log.reg.model to the significant variables
+# Model 1
+mylogit_reduced  <- glm(RESPONSE ~ CHK_ACCT+DURATION+NEW_CAR+EDUCATION+SAV_ACCT++EMPLOYMENT+OTHER_INSTALL, data = training_full, family = "binomial")
+summary(mylogit_reduced)
+logit_pred1 <- predict(mylogit1, newdata = testing1, type = "response")
+# Prediction CrossTable
+logit_model_pred1 <- rep("0", length(testing1$RESPONSE))
+logit_model_pred1[logit_pred1 > 0.5] <- "1"
+logit_cm1 <- table(logit_model_pred1, testing1$RESPONSE)
+logit_cm1
+CrossTable(x=testing1$RESPONSE,y=logit_model_pred1, prop.chisq=T)
 
-# More over it seems we do not have a big difference between models 1 and 2
-# Hence, we will keep using only models 1 and 3 for comparisons
+# Misclassification error
+logit_error1 <- 1 - sum(diag(logit_cm1))/sum(logit_cm1)
+logit_error1
 
 
 ###3.1 Classification Tree
