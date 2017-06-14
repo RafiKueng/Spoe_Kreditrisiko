@@ -70,12 +70,12 @@ gc.quali
 #gc.quali[,17][gc.quali[,17]== 2] <- 1 #cleaning the var. GUARANTOR because there was one typing error (
 summary(gc.quali) #summary for qualitative variables
 gc.quanti<-gc[,quanti]
+gc.quanti[,2]<-log(gc.quanti[,2])  #logarithmise the variable AMOUNT because it is heavily right-skewed
 gc.quanti
 
 #obs. 37 with "-1" for EDUCATION; "-1" represents no category for this variable
 #obs. 234 with "2" for GUARANTOR; "2" represents no category for this variable
 #obs. 537 with "125" for AGE, which is unplausible
-
 gc.quanti<-gc.quanti[-c(37,234,537),] #deleting obs. 37, 234 537 due to the fact of inplausible values
 gc.quali<-gc.quali[-c(37,234,537),]  
 RESPONSE<-RESPONSE[-c(37)]   
@@ -85,6 +85,7 @@ summary(gc.quanti) #summary for the quantitative variables
 gc<-cbind(gc.quali,gc.quanti,RESPONSE)
 gc
 attach(gc)
+
 
 ##Descriptive Statistics
 str(gc)
@@ -243,19 +244,33 @@ hist(AMOUNT)
 hist(AGE)
 par(mfrow=c(1,3))
 boxplot(split(DURATION,RESPONSE),xlab="Credit Rating",ylab="DURATION OF CREDIT in months", notch=T,varwidth=T,col=c("red","blue"))
-boxplot(split(AMOUNT,RESPONSE),xlab="Credit Rating",ylab="CREDIT AMOUNT", notch=T,varwidth=T,col=c("red","blue"))
-boxplot(split(AGE,RESPONSE),xlab="Credit Rating",ylab="AGE", notch=T,varwidth=T,col=c("red","blue"))
+boxplot(split(AMOUNT,RESPONSE),xlab="Credit Rating",ylab="CREDIT AMOUNT in log(DM)", notch=T,varwidth=T,col=c("red","blue"))
+boxplot(split(AGE,RESPONSE),xlab="Credit Rating",ylab="AGE in years", notch=T,varwidth=T,col=c("red","blue"))
  
 
 INSTALL_RATE_quant<-as.numeric(INSTALL_RATE)
 NUM_DEPENDENTS_quant<-as.numeric(NUM_DEPENDENTS)
 NUM_CREDITS_quant<-as.numeric(NUM_CREDITS)
+
+
                  
 ##binomial logistic regression
 # as we have seen above multicollinearity is not that big of a problem, so we do without concerns a binary log. reg. with all the 3 quantitative variables including, they shouldn't disturb each other too much
+logreg_only_amount<-glm(RESPONSE~AMOUNT,family=binomial(link="logit"),data=gc)
+summary(logreg_only_amount)
+#AMOUNT<-exp(AMOUNT)  #for testing with original AMOUNT (not logarithmized)
+logreg_only_amount<-glm(RESPONSE~exp(AMOUNT),family=binomial(link="logit"),data=gc)
+summary(logreg_only_amount)
 logreg_only_new_3_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE,family=binomial(link="logit"),data=gc)
                  summary(logreg_only_new_3_quant)
+#AMOUNT<-exp(AMOUNT)  #for testing with original AMOUNT (not logarithmized)                 
+logreg_only_new_3_quant<-glm(RESPONSE~DURATION+exp(AMOUNT)+AGE,family=binomial(link="logit"),data=gc)
+                 summary(logreg_only_new_3_quant)
+                 
 logreg_original_6_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant+NUM_DEPENDENTS_quant+NUM_CREDITS_quant,family=binomial(link="logit"),data=gc)
+summary(logreg_original_6_quant)
+#AMOUNT<-exp(AMOUNT)  #for testing with original AMOUNT (not logarithmized)                 
+logreg_original_6_quant<-glm(RESPONSE~DURATION+exp(AMOUNT)+AGE+INSTALL_RATE_quant+NUM_DEPENDENTS_quant+NUM_CREDITS_quant,family=binomial(link="logit"),data=gc)
                  summary(logreg_original_6_quant)
 logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binomial(link="logit"),data=gc)
                  summary(logreg_4_quant)
@@ -314,16 +329,19 @@ library(rpart)
 set.seed(1657)
 
 
-gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN
-gcform_all=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN
+#gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN
+#gcform_all=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN
 #gcform_all=regression formula for all variables (without obs) due to the fact that unfortunately RESPONSE~. produces errors
 
-gc.ct<-rpart(formula=gcform_all,method="class",data=gc,cp=0.001)
+gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+SAV_ACCT+EMPLOYMENT+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+FOREIGN+GUARANTOR
+
+
+gc.ct<-rpart(formula=gcform_reduced,method="class",data=gc,cp=0.001)
 print(gc.ct)
 summary(gc.ct)
 
 gc.ct<-gc %>%
-  rpart(formula=gcform_all,method="class",cp=0.001) %>%
+  rpart(formula=gcform_reduced,method="class",cp=0.001) %>%
   summary()
 
 #par(mar=numeric(4))
