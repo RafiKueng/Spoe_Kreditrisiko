@@ -113,8 +113,26 @@ Gutes oder schlechtes Kreditrisiko?
 Modellierungen anhand des Datensatzes German Credits
 \end_layout
 
+\begin_layout Title
+
+\size larger
+Report in Seminar of Applied Statistics, Spring 2017
+\end_layout
+
+\begin_layout Title
+
+\size larger
+University of Neuchâtel
+\end_layout
+
 \begin_layout Author
-Marc Spörri
+Referent: Prof.
+ Dr.
+ Jacques Zuber
+\end_layout
+
+\begin_layout Author
+Author: Marc Spörri
 \end_layout
 
 \begin_layout Standard
@@ -131,18 +149,9 @@ Einführung und Problembeschreibung
 \end_layout
 
 \begin_layout Standard
-In der folgenden Arbeit geht 
-\begin_inset Flex variable
-status open
-
-\begin_layout Plain Layout
-a
-\end_layout
-
-\end_inset
-
- es darum, Modelle zu entwickeln, um möglichst präzise Vorhersagen zur Kreditwür
-digkeit von Kreditanwärtern treffen zu können.
+In der folgenden Arbeit geht es darum, Modelle zu entwickeln, um möglichst
+ präzise Vorhersagen zur Kreditwürdigkeit von Kreditanwärtern treffen zu
+ können.
  Anhand unterschiedlicher Attribute (z.B.
  Kredithistorie, Zweck des Kredits, Vermögens- und Arbeitssituation etc.)
  soll das passendste Modell und die einflussreichsten Variablen zur Vorhersage
@@ -155,7 +164,7 @@ digkeit von Kreditanwärtern treffen zu können.
 \end_layout
 
 \begin_layout Section
-Explanatory Data Analysis
+Explanatorische Datenanalyse
 \end_layout
 
 \begin_layout Standard
@@ -4644,20 +4653,16 @@ name "fig:bivariate-logistische-Regression"
 
 \end_layout
 
-\begin_layout Subsubsection*
-Synthese Explorative Datenanalyse
-\end_layout
-
 \begin_layout Standard
-Als Kondensat der explorativen Datenanalyse gibt die Tabelle 
+Als Synthese der explanatorischen Datenanalyse gibt die Tabelle 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "tab:Übersicht-über-die"
 
 \end_inset
 
-eine abschliessende Übersicht über die Variablen, die für die anschliessende
- Modellierung berücksichtigt werden.
+eine Übersicht über die Variablen, die schliesslich die nachfolgende Modellierun
+g selektiert wurden.
 \end_layout
 
 \begin_layout Standard
@@ -6262,27 +6267,11 @@ Vor der Modellierung wird der Datensatz zunächst partitioniert in ein Trainings
  Randomverfahren 70% der Beobachtungen dem Trainingsdatensatz zugeordnet
  werden und 30% dem Testdatensatz.
  Aufgrund der doch relativ kleinen Stichprobe im Testdatensatz von 300 Beobachtu
-ngen werden mittels Bootstrap-Verfahren (1000 Bootstrap-Runden) durchgeführt.
- Dies bringt uns näher an die empirische Verteilungsfunktion der Variablen
- und garantiert uns stabilere Resultate.
- Insbesondere für die Modellierung des Classification-Trees ist das wichtig,
- da er in der Regel das instabilste Modell ist und durch den Boots-Trap
- dieser Nachteil reduziert werden kann.
- Wir sehen uns bestätigt, dass das Bootstrap-Verfahren ein gut proportioniertes
- Trainings- und Testdatensatz kreiert: So entspricht der Anteil der Personen
- mit gutem Kreditrating im Trainingsdatensatz und im Testdatensatz approximativ
- der Verteilung im originalen Datensatz (698:299).
-\end_layout
-
-\begin_layout Standard
-Mache 3 verschiedene TrainingDatasets.
- 0.3/0.7 , 0.8/0.2 und noch je mit korrekten proportionen.
- und noch eines mit 200/200 gleiche verteilung creditratig gut und schlecht,
- im sinne von da varianz verringern wo wir wenige beobachtungen haben
-\end_layout
-
-\begin_layout Standard
-bit rbinom sets aufteilen und p = 0.7 setzen
+ngen wird bewusst ein Seed gewählt, dessen Random-Draw uns ein fast gleiches
+ Verhältnis von guten und schlechten Kreditratings wie im vollständigen
+ Datensatz ermöglicht (698:299).
+ Dadurch wird vermieden, dass wir einen Bias durch abweichende Verteilungen
+ im Training- und Testdatensatz haben.
 \end_layout
 
 \begin_layout Subsection
@@ -6291,10 +6280,10 @@ Logistische Regression
 
 \begin_layout Standard
 Als erstes Modell führen wir eine logistische Regression durch.
- Hierbei schliessen wir zunächst alle in der Explorativen Datenanalyse selektier
-ten Variablen mit ein.
- Um Overfitting zu vermeiden, werden wir anschliessend ein sprsameres, auf
- die signifikanten Variablen reduziertes Modell verwenden.
+ Hierbei schliessen wir zunächst alle in der Explanatorische Datenanalyse
+ selektierten Variablen mit ein.
+ Um Overfitting zu vermeiden, werden wir anschliessend ein sparsameres,
+ auf die signifikanten Variablen reduziertes Modell verwenden.
 \end_layout
 
 \begin_layout Standard
@@ -6605,7 +6594,7 @@ name "fig:reduziertes-logistisches-Modell"
 \end_layout
 
 \begin_layout Subsubsection*
-Vorhersage-Performance
+Vorhersage-Performance logistische Regression
 \end_layout
 
 \begin_layout Standard
@@ -6614,9 +6603,16 @@ Das obige Regressionsmodell basiert auf dem 698 Beobachtungen umfassenden
  Jetzt wird überprüft, wie gut das auf dem Trainingsdatensatz angewandte
  logistische Modell den 299 Beobachtungen umfassenden Testdatensatz vorhersagen
  kann.
- Wie wir der Grafik xy entnehmen können, ist das logistische Regressionsmodell
- mit xy% Vorhersagewahrscheinlichkeit sehr gut darin, Personen mit einem
- guten Kreditrating vorherzusagen.
+ Wie wir der Tabelle 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Prediction-Matrix-logistische"
+
+\end_inset
+
+ entnehmen können, ist das logistische Regressionsmodell mit xy% Vorhersagewahrs
+cheinlichkeit sehr gut darin, Personen mit einem guten Kreditrating vorherzusage
+n.
  Hingegen fällt es relativ schwierig, ein schlechtes Kreditrating korrekt
  vorherzusagen.
  Hier liegt das Modell zu ungefähr 60% falsch.
@@ -6627,6 +6623,203 @@ Das obige Regressionsmodell basiert auf dem 698 Beobachtungen umfassenden
  keine Kredite an Personen mit schlechter Kreditwürdigkeit zu vergeben.
  Und in 20% der Fälle würden wir mit diesem Modell eben auch an Personen
  einen Kredit vergeben, die eigentlich ein schlechtes Kreditrating aufweisen.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Prediction Matrix logistische Regression
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Prediction-Matrix-logistische"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="4">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -6655,8 +6848,8 @@ TODO smalles xerror for pruning -> 6 Trees
 
 \begin_layout Standard
 Um einen Classification Tree zu modellieren, müssen wir zuerst die Anzahl
- Bäume bestimmen.
- Hierfür wird zuerst ein Modell mit so vielen Bäumen wie möglich angenommen.
+ Nodes bestimmen.
+ Hierfür wird zuerst ein Modell mit so vielen Ästen wie möglich angenommen.
  Danach wird der Baum 
 \begin_inset Quotes eld
 \end_inset
@@ -6665,10 +6858,80 @@ gestutzt
 \begin_inset Quotes erd
 \end_inset
 
- (pruned) auf die meist relevanten Nodes.
- Wir können der Figure entnehmen, dass der Cross-Validation-Error den geringsten
- Wert bei der Baumanzahl xy annimmt.
- Wir erhalten anschliessend ein Modell, dass die Variable 
+ (pruned) auf die wenigen relevanten Nodes.
+ Hierfür ermitteln wir den kritischen relativen Cross-Validation-Error.
+ Das ist derjenige Wert, ab welchem zusätzliche Nodes keinen grossen Erklärungsg
+ewinn mehr schaffen.
+ Weil der Classification Tree relativ instabil ist, verfolgen wir einen
+ konservativen Ansatz und möchten möglichst wenige, dafür relativ stabile
+ Nodes.
+ Hierfür habe ich den Classification Tree viele Male modelliert.
+ 
+\end_layout
+
+\begin_layout Standard
+Dabei zeigte sich, dass bei 5 Nodes immer dieselben drei stärksten Variablen
+ sind und damit durchaus als robust gelten.
+ Ich entschied mich also für ein Modell und einen Seed (25566), dass mir
+ einen Classification Tree mit 5 Verästelungen generiert.
+ Der kritische relative Cross-Validation-Wert in diesem Modell lag bei 0.93.
+ Wie wir der Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Cross-Validation-Error-vs-Baumgr"
+
+\end_inset
+
+entnehmen können, wird dieser Wert ab mindestens 5 Verästelungen unterschritten.
+ Wir streben also ein Modell mit maximal 5 Verästelungen an.
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Cross-Validation-Error vs Baumgrösse
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Cross-Validation-Error-vs-Baumgr"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/def CT xvalerror.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Durch die Modellierung dieses 5-Verästelungen-Modell ergibt sich die Variable
+ 
 \begin_inset Flex variable
 status open
 
@@ -6678,7 +6941,14 @@ CHK_ACCT
 
 \end_inset
 
- als mit Abstand wichtigste Variable ausweist.
+ als mit Abstand wichtigste Variable (Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Classification-Tree-mit"
+
+\end_inset
+
+).
  Durch einen Bankaccount mit einem Wert von 2 (>200
 \begin_inset space ~
 \end_inset
@@ -6725,12 +6995,293 @@ SAV_ACCT
 \end_inset
 
 ) und der Zweck des Kredits.
- Hier kann dann letztlich der Wunsch nach einem Gebrauchtwagen noch zu einem
- positiven Kreditrating führen.
+ Hier kann dann letztlich der Kreditunsch nach einem Gebrauchtwagen noch
+ zu einem positiven Kreditrating führen.
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Classification Tree mit 5 Verästelungen
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Classification-Tree-mit"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/cart_ct_4nodes.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection*
-Vorhersage-Performance
+Vorhersage-Performance Classification Tree
+\end_layout
+
+\begin_layout Standard
+Für den Classification Tree wird nun ebenfalls überprüft, wie gut der auf
+ dem Trainingsdatensatz (698 Beobachtungen) angewandte Classification Tree
+ den 299 Beobachtungen umfassenden Testdatensatz vorhersagen kann.
+ Wie wir der Tabelle 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Prediction-Matrix-Classification"
+
+\end_inset
+
+ entnehmen können, ist der Classification Tree etwas weniger gut darin,
+ Personen mit einem guten Kreditrating vorherzusagen (True Positive Rate
+ von 78%).
+ Dafür ist die korrekte Vorhersage eines schlechten Kreditratings (True
+ Negative Rate von .65%) besser als im im logistischen Modell.
+ 
+\begin_inset Quotes gld
+\end_inset
+
+Nur
+\begin_inset Quotes grd
+\end_inset
+
+ zu etwa einem Drittel prognostizieren wir also False Positives, das ist
+ eine entscheidende Verbesserung gegenüber dem logistischen Modell, da dadurch
+ die Wahrscheinlichkeit geringer ist, dass wir Kredite an Personen mit schlechte
+r Kreditwürdigkeit vergeben als im logistischen Regressionsmodell.
+ Die overall-Misclassification-Rate des logistischen Modells liegt bei etwa
+ 24%.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Prediction Matrix Classification Tree
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Prediction-Matrix-Classification"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="4">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -6937,6 +7488,10 @@ EMPLOYMENT
  treffen wollen.
 \end_layout
 
+\begin_layout Paragraph*
+Vorhersage-Performance des Random Forests
+\end_layout
+
 \begin_layout Standard
 Was die Vorhersage-Performance betrifft, so zeigt sich beim Random Forest
  ein ähnliches Verhalten wie beim Classification Tree.
@@ -6957,7 +7512,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Vorhersage-Fehler des Random Forests
+Vorhersage-Fehler des Random Forests in Abhängigkeit der Anzahl Bäume
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:Vorhersage-Fehler-des-Random"
@@ -6989,22 +7544,26 @@ name "fig:Vorhersage-Fehler-des-Random"
 \end_layout
 
 \begin_layout Standard
-Grafik zeigt in Abhängigkeit der Anzahl Bäume den Vorhersage-Fehler.
- Die mittlere Linie gibt den overall-Fehler an, welcher sich bei einem Wert
- unter knapp 0.3 einpendelt.
+Die Abbildung 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Vorhersage-Fehler-des-Random"
+
+\end_inset
+
+zeigt in Abhängigkeit der Anzahl Bäume den Vorhersage-Fehler.
+ Die mittlere Linie gibt den overall-Misclassification-Fehler an, welcher
+ sich bei einem Wert unter knapp 0.3 einpendelt und damit etwas höher liegt
+ als beim logistischen Regressionsmodell (25%) und Classification Tree (24%).
  Die unterste Linie gibt an, wie gut wir in der Lage sind, Personen mit
  gutem Kreditrating vorherzusagen.
- Wie schon beim Classification Tree sehen wir, dass wir auch hier einen
- sehr guten Wert um ungefähr 0.1 erreichen, also etwa 90% der guten Kreditratings
- korrekt vorhersagen.
- Hingegen fahren wir auch mit der Random Forest Methode schlecht, wenn es
- darum geht, ein schlechtes Kreditrating vorherzusagen.
- Hier pendelt sich der Fehler bei rund 0.6 ein, ergo werden nur rund 40%
- aller schlechten Kreditratings korrekt vorhergesagt.
-\end_layout
-
-\begin_layout Subsubsection*
-Learning Data Set
+ Wir sehen, dass wir auch hier einen sehr guten Error-Wert um ungefähr 0.1
+ erreichen, also etwa 90% der guten Kreditratings korrekt vorhersagen.
+ Hingegen ist auch die Random Forest Methode schlecht darin, wenn es darum
+ geht, ein schlechtes Kreditrating vorherzusagen.
+ Hier pendelt sich der Fehler bei rund 0.6 (False Positives) ein, ergo werden
+ nur rund 40% aller schlechten Kreditratings korrekt vorhergesagt.
+ Das ist ein ziemlich schwaches Ergebnis.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -7192,10 +7751,6 @@ Learning Data Set
 \begin_layout Standard
 TODO empfohlen 2 hidden layers of thee resp.
  2nodes to evade overfitting 
-\end_layout
-
-\begin_layout Subsubsection*
-Ergebnisse
 \end_layout
 
 \begin_layout Subsection
@@ -7811,6 +8366,19 @@ SAV_ACCT
  negatives Kreditrating sorgt.
  Diese konkreten Werte sind eine praktische Orientierungshilfe bei der Entscheid
 findung für oder gegen eine Kreditvergabe.
+ 
+\end_layout
+
+\begin_layout Standard
+Zuletzt fällt auch auf, dass je besser ein Modell darin ist, korrekte Vorhersage
+n für gute Kreditanwärter zu treffen (True Positives), umso höher fällt
+ auch die False Positive Rate aus.
+ Eine hohe False Positive Rate möchten wir in jedem Fall vermeiden.
+ Einem konservativen Ansatz folgend ist für uns eine gute True Negative
+ Rate wichtiger als eine True Positive Rate, denn so vermeiden wir, schlechten
+ Gläubigern Kredite zu verleihen.
+ Und bei den True Negative Rate schneidet ebenfalls der Classification Tree
+ am besten ab.
 \end_layout
 
 \begin_layout Standard
