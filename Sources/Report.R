@@ -312,13 +312,12 @@ logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binom
                  #AGE
                  #RESPONSE
                  model1 <- gc[,c(2,4,5,7,8,10,11,14,16,17,19,20,21,22,23,28,29,31,32)]
-                  #model with HISTORY and AMOUNT
-                 model2 <- gc[,c(2,3,4,5,7,8,10,11,14,16,17,19,20,21,22,23,28,29,30,31,32)]
+                  #model2 with AMOUNT
+                 model2 <- gc[,c(2,4,5,7,8,10,11,14,16,17,19,20,21,22,23,28,29,30,31,32)]
+                 #model3 with HISTORY and AMOUNT
+                 model3 <- gc[,c(2,3,4,5,7,8,10,11,14,16,17,19,20,21,22,23,28,29,30,31,32)]
                  # Full model
                  gc
-          
-                 
-                 
                  #-----------------------
                  # Data Partition
                  #-----------------------
@@ -331,12 +330,24 @@ logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binom
                  training_full <- gc[ind==1,]
                  training1 <- model1[ind==1,]
                  training2 <- model2[ind==1,]
+                 training3 <- model2[ind==1,]
                  testing_full <- gc[ind==2,]
                  testing1 <- model1[ind==2,]
                  testing2 <- model2[ind==2,]
+                 testing3 <- model2[ind==2,]
+summary(training1)
+
+#creating the corresponding formulas to prepare the upcoming modelling processus
+gcform_model1=RESPONSE ~ CHK_ACCT+DURATION+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+SAV_ACCT+EMPLOYMENT+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+FOREIGN+GUARANTOR
+#gcform_model2
+gcform_model2=RESPONSE ~ CHK_ACCT+DURATION+AMOUNT+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+SAV_ACCT+EMPLOYMENT+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+FOREIGN+GUARANTOR
+#gcform_model3 with HISTORY and AMOUNT
+gcform_model3=RESPONSE ~ CHK_ACCT+HISTORY+DURATION+AMOUNT+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+SAV_ACCT+EMPLOYMENT+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+FOREIGN+GUARANTOR
+#full model with all variables
+gcform_full=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN
 
                  
-###3 Modelling
+###3 Modelling Processus
 ###3.1 Classification Tree
 
 #e) Predictions
@@ -374,27 +385,30 @@ plot(fit.ct.boot)
 
 # Classification tree from R code of Workshop 2
 library(knitr)
-
 library(gmodels)
-
 library(rpart)
 
-set.seed(1657)
-
+set.seed(256)
 
 #gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN
 #gcform_all=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN
 #gcform_all=regression formula for all variables (without obs) due to the fact that unfortunately RESPONSE~. produces errors
 
-gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+SAV_ACCT+EMPLOYMENT+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+FOREIGN+GUARANTOR
+#training1<-training2
+#testing1<-testing2
+#gcform_model1<-gcform_model2
+#summary(training1)
 
-#setting cp near to 0 to get a tree with as many branches as possible
-gc.ct<-rpart(formula=gcform_reduced,method="class",data=training1,cp=0.001)
+#setting cp close to 0 to get a tree with as many branches as possible
+gc.ct<-rpart(formula=gcform_model1,method="class",data=training1,cp=0.001)
 print(gc.ct)
 summary(gc.ct)
 
+gc.ct$variable.importance #CHK_ACCT is the most important variable, followed by DURATION
+summary(gc.ct)
+
 gc.ct<-gc %>%
-  rpart(formula=gcform_reduced,method="class",cp=0.001) %>%
+  rpart(formula=gcform_model1,method="class",cp=0.001) %>%
   summary()
 
 #par(mar=numeric(4))
@@ -402,32 +416,37 @@ par(mar=c(0.5, 1, 0.5, 1))
 plot(gc.ct,uniform=TRUE)
 text(gc.ct,use.n=TRUE,all=TRUE,cex=0.6)
 
+# Plot the Resubstitution Error (rel error)  against tree size
+with(gc.ct, plot(cptable[,4], xlab = "Number of Trees", ylab = "Cross-validation error", type = "b"))
+
 options(digits=5)
 printcp(gc.ct)
-plotcp(gc.ct)
+plotcp(gc.ct) #here we can see that x-val-relative error falls beyond the critical value of 0.93 at the 5th tree
 
-# Plot the RESUBSTITUTION ERROR (rel error)  against tree size
-with(tree1, plot(cptable[,3], xlab = "Tree Number", ylab = "Resubstitution Error (R)", type = "b"))
-# As previously explained, we should not base our decision on the resubstitution error
-with(tree1, plot(cptable[,4], xlab = "Tree Number", ylab = "Cross-validated error (R(cv))", type = "b"))
-# From this graph we get the smallest xerror is in the third tree, cpt value is 0.93
 
-# Using the 1-SE method
+# Using the 1-SE method to determine the cp-value
 cp<-gc.ct$cptable
+cp  
 opt<-which.min(gc.ct$cptable[,"xerror"])
+opt  
 r<-cp[, 4][opt]+cp[, 5][opt]
+r
 rmin<-min(seq(1:dim(cp)[1])[cp[, 4] < r])
+rmin
 cp0<-cp[rmin,1]
-cat("size chosen was",cp[rmin,2]+1,"\n")
+cp0
+cat("size chosen was",cp[rmin,2]+1,"\n")  #therefore the optimal size is 5
 gc.ct1<-prune(gc.ct,cp=1.01*cp0)
 summary(gc.ct1)
 
 x<-factor(predict(gc.ct1,type="class"))
 table(true=RESPONSE,predicted=x)
 
+####falsche prediction
 library(gmodels)
 gc.pred<-predict(gc.ct1,type="class")
 CrossTable(x = RESPONSE, y = gc.pred, prop.chisq=FALSE)
+#######
 
 plot(gc.ct1,branch=0.4,uniform=TRUE)
 text(gc.ct1,digits=3,use.n=TRUE,cex=0.6)
@@ -438,7 +457,7 @@ prp(gc.ct1,main="",type=4,extra=4,faclen=0)
 rpart.plot(gc.ct1,main="",extra=104,under=TRUE,faclen=0)
 
 cols<-ifelse(gc.ct1$frame$yval,"green4","darkred")
-prp(gc.ct1
+prp(tree1_prun
     ,main="CART model tree"
     ,extra=104           # display prob and percent of obs
     ,nn=TRUE             # display the node numbers
@@ -456,31 +475,41 @@ prp(gc.ct1
     ,split.border.col="darkgray" # darkgray border on split boxes
     ,split.round=.5)
 
-library(partykit)
-plot(as.party(gc.ct1),tp_args = list(id = FALSE))
+# prediction
+pred_tree1 <- predict(gc.ct1, newdata = testing1, type = "class")
+# getting the same confusion matrix
+tree1_cm <- table(pred_tree1, testing1$RESPONSE)
+tree1_cm
+# Misclassification error
+error_tree1_prun <- 1 - sum(diag(tree1_cm))/sum(tree1_cm) 
 
-##end of classification tree from R code of Workshop 2
+round(prop.table(tree1_cm),2)
+error_tree1_prun
 
 
+##end of classification tree
 
 
 
 ##3.2 Random Forest
+#model1<-model2
+#training1<-training2
+#gcform_model1<-gcform_model2
 
 library(rattle)
-str(gc)
-head(gc)
-tail(gc)
-summary(gc)
+str(model1)
+head(model1)
+tail(model1)
+summary(model1)
 
-data<-na.omit(gc)
+data<-na.omit(model1)
 nobs<-nrow(data)
-form<-formula(RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN)
-#all variables except obs included
+form<-formula(gcform_model1)
+#all variabless included
 target<-all.vars(form)[1]
 vars<-names(data)
-set.seed(33)
-train<-sample(nobs,0.8*nobs) #selecting 80% of all as training data set
+set.seed(256)
+train<-sample(nobs,0.7*nobs) #selecting 70% of all as training data set
 train
 
 library(randomForest)
@@ -525,74 +554,6 @@ CrossTable(x=RESPONSE[-train],y=gc.pred, prop.chisq=T)
 
 
 
-#3.3 Neural Networks
+#3.4 Neural Networks
 
-#1. Training Data Set
-library(nnet)
-require(MASS)
-require(nnet)
-
-samp <- c(sample(1:500, 250), sample(501:1000, 250))
-gc.training <- gc[samp, ]
-summary(gc.training)
-
-#2. Test Data Set
-gc.test <- gc[-samp, ]
-summary(gc.test)
-
-
-#3. Fitting a Neural network
-gc.net <- nnet(gcform_reduced, data = gc.training, size = 2, rang = 0.1, decay = 5e-04, 
-                 maxit = 200)
-
-
-#4.Neural Network Plot
-library(NeuralNetTools)
-par(mar = numeric(4), family = "serif")
-plotnet(gc.net, pos_col = "darkgreen", neg_col = "darkblue")
-
-#5. Misclassification Table
-table(true = gc.test$RESPONSE, predicted = predict(gc.net, gc.test, type = "class"))
-
-library(gmodels)
-gc.pred <- predict(gc.net, gc.test, type = "class")
-CrossTable(x = gc.test$RESPONSE, y = gc.pred, prop.chisq = FALSE)
-
-
-#6. Using Neural neuralnet package
-library(neuralnet)
-nnet_gctrain <- gc.training
-# binarize the categorical output
-nnet_gctrain <- cbind(nnet_gctrain, gc.training$RESPONSE == 0)
-nnet_gctrain <- cbind(nnet_gctrain, gc.training$RESPONSE == 1)
-
-names(nnet_gctrain)[34] <- "good_rating"
-names(nnet_gctrain)[33] <- "bad_rating"
-summary(nnet_gctrain)
-
-head(nnet_gctrain)
-
-nnet_gctest <- gc.test
-nnet_gctest <- cbind(nnet_gctest, gc.test$RESPONSE == 0)
-nnet_gctest <- cbind(nnet_gctest, gc.test$RESPONSE == 1)
-names(nnet_gctest)[34] <- "good_rating"
-names(nnet_gctest)[33] <- "bad_rating"
-
-head(nnet_gctest)
-
-#funktinoiert noch nicht Error in neurons[[i]] %*% weights[[i]] : 
-#gcform_reduced  #to get all our explanatory variables
-nn <- neuralnet(good_rating + bad_rating ~ DURATION + AMOUNT + AGE, data = nnet_gctrain, hidden = c(2))
-plot(nn)
-
-mypredict <- compute(nn, gc.training[-5])$net.result
-#Put multiple binary output to categorical output
-#maxidx <- function(arr) {
-#  return(which(arr == max(arr)))
-#}
-#idx <- apply(mypredict, c(1), maxidx)
-#prediction <- c("setosa", "versicolor", "virginica")[idx]
-#table(true = iris.training$Species, predicted = prediction)
-
-CrossTable(x = gc.test$RESPONSE, y = prediction, prop.chisq = FALSE)
 
