@@ -15,8 +15,27 @@ library(ggcorrplot)
 library(gridExtra)   #imp.
 library(grid)     #imp.
 library(gmodels)   #imp.
-library(nnet)   #imp.
 library(magrittr)
+library(nnet)   #imp.
+library(NeuralNetTools)
+library(neuralnet)
+
+
+
+
+
+
+#find out which model (, binomial regression rain forest, neural network, vector machine etc.) is the best for our data
+#response variable is whether we give a credit or not
+-> recommended classification tree, it's mmuch easier to explain than f.e. blackbox neural neutworks' und for allem, predi tion accuracy ist gut! und anschaulich für kunde
+-> kleinster baum nehmen, 2 äste
+-> dont use too sophisticated models! oder vorsichtig damit
+
+#Presentation
+3 kurze schritte:
+  - was ist das problem? problem erklären
+  - welche modelle habe ich angewendet
+  - conclusion warum das oder das Modell letztlich angewendet wurde.
 
 
 
@@ -52,6 +71,9 @@ gc.quali[,17][gc.quali[,17]== 2] <- 1 #cleaning the var. GUARANTOR because there
 summary(gc.quali) #summary for qualitative variables
 gc.quanti<-gc[,quanti]
 gc.quanti
+gc.quanti<-gc.quanti[-c(537),] #deleting observation 537 because Age was = 125 which cannot be a true value
+gc.quali<-gc.quali[-c(537),]  #idem, deleting obs. 537 for getting the same number of observations for all type of variables
+RESPONSE<-RESPONSE[-c(537)]   #idem, deleting obs. 537 for getting the same number of observatiosn for the RESPONSE var.
 summary(gc.quanti) #summary for the quantitative variables
 gc<-cbind(gc.quali,gc.quanti,RESPONSE)
 gc
@@ -239,6 +261,38 @@ logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binom
 ###3 Modelling
 ###3.1 Classification Tree
 
+#e) Predictions
+library(knitr)
+gc.pred <- predict(gc.prune, type = "class")
+table(gc.pred, RESPONSE)
+
+library(gmodels)
+CrossTable(x = RESPONSE, y = gc.pred, prop.chisq = FALSE)
+
+summary(RESPONSE~.,data=gc)
+
+gc.ct<-rpart(RESPONSE~.,method="class",data=gc,cp=0.001)
+gc.ct<-rpart(RESPONSE~., main="",type=4,extra=4,faclen=0)
+cols<-ifelse          #better graph
+
+print(gc.ct)
+summary(gc.ct)
+
+
+#looking for the best parameter of complexity
+
+subset(fit.ct.cv$results,subset=cp==fit.ct.cv$bestTune$cp)
+
+plot(fit.ct.cv)
+subset(fit.ct.recv$results,subset=cp==fit.ct.recv$bestTune$cp)
+
+plot(fit.ct.recv)
+subset(fit.ct.boot$results,subset=cp==fit.ct.boot$bestTune$cp)
+
+plot(fit.ct.boot)
+#use boottrap to because decision tree is not stable
+
+
 
 # Classification tree from R code of Workshop 2
 library(knitr)
@@ -323,10 +377,11 @@ plot(as.party(gc.ct1),tp_args = list(id = FALSE))
 
 
 
+
+
 ##3.2 Random Forest
 
 library(rattle)
-data(gc)
 str(gc)
 head(gc)
 tail(gc)
@@ -337,13 +392,13 @@ nobs<-nrow(data)
 form<-formula(RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN)
 #all variables except obs included
 target<-all.vars(form)[1]
-vars<- -grep('test',names(data))
+vars<-names(data)
 set.seed(33)
-train<-sample(nobs,0.7*nobs) #selecting 70% of all
+train<-sample(nobs,0.8*nobs) #selecting 80% of all as training data set
 train
 
 library(randomForest)
-gcRF<-randomForest(formula=form, data=data[train,vars],
+gcRF<-randomForest(formula=form, data=data[train,],
                    ntree=500,mtry=4, #we try 4 variables
                    importance=TRUE, #information about which variables are important
                    localImp=TRUE,
@@ -375,16 +430,83 @@ gcRF$confusion #use  #same as print(gcRF)?
 #conclusion: model is not good in prediction of a person with bad creditrating
 
 #i)Finally analyzing the confusion matrix for the Test Dataset   
-#TODO problem mit grep und dessen pattern wahrscheinlich, -> help dazu ans hauen
 library(gmodels)
-vars.pred=-grep('test2', names(gcRF))
-vars.pred
-gc.pred=predict(data,gcRF[-train,vars.pred], type="class")
+vars.pred<-names(data)
+gc.pred=predict(gcRF,data[-train,vars.pred], type="class")
 gc.pred
-CrossTable(x=data$RESPONSE[-train],y=gc.pred, prop.chisq=F)
-
-gcRF$RESPONSE[-train]
+CrossTable(x=RESPONSE[-train],y=gc.pred, prop.chisq=T)
 
 
 
+
+#3.3 Neural Networks
+
+#1. Training Data Set
+library(nnet)
+require(MASS)
+require(nnet)
+
+samp <- c(sample(1:500, 250), sample(501:1000, 250))
+gc.training <- gc[samp, ]
+summary(gc.training)
+
+#2. Test Data Set
+gc.test <- gc[-samp, ]
+summary(gc.test)
+
+
+#3. Fitting a Neural network
+gc.net <- nnet(gcform_reduced, data = gc.training, size = 2, rang = 0.1, decay = 5e-04, 
+                 maxit = 200)
+
+
+#4.Neural Network Plot
+library(NeuralNetTools)
+par(mar = numeric(4), family = "serif")
+plotnet(gc.net, pos_col = "darkgreen", neg_col = "darkblue")
+
+#5. Misclassification Table
+table(true = gc.test$RESPONSE, predicted = predict(gc.net, gc.test, type = "class"))
+
+library(gmodels)
+gc.pred <- predict(gc.net, gc.test, type = "class")
+CrossTable(x = gc.test$RESPONSE, y = gc.pred, prop.chisq = FALSE)
+
+
+#6. Using Neural neuralnet package
+library(neuralnet)
+nnet_gctrain <- gc.training
+# binarize the categorical output
+nnet_gctrain <- cbind(nnet_gctrain, gc.training$RESPONSE == 0)
+nnet_gctrain <- cbind(nnet_gctrain, gc.training$RESPONSE == 1)
+
+names(nnet_gctrain)[34] <- "good_rating"
+names(nnet_gctrain)[33] <- "bad_rating"
+summary(nnet_gctrain)
+
+head(nnet_gctrain)
+
+nnet_gctest <- gc.test
+nnet_gctest <- cbind(nnet_gctest, gc.test$RESPONSE == 0)
+nnet_gctest <- cbind(nnet_gctest, gc.test$RESPONSE == 1)
+names(nnet_gctest)[34] <- "good_rating"
+names(nnet_gctest)[33] <- "bad_rating"
+
+head(nnet_gctest)
+
+#funktinoiert noch nicht Error in neurons[[i]] %*% weights[[i]] : 
+#gcform_reduced  #to get all our explanatory variables
+nn <- neuralnet(good_rating + bad_rating ~ DURATION + AMOUNT + AGE, data = nnet_gctrain, hidden = c(2))
+plot(nn)
+
+mypredict <- compute(nn, gc.training[-5])$net.result
+#Put multiple binary output to categorical output
+#maxidx <- function(arr) {
+#  return(which(arr == max(arr)))
+#}
+#idx <- apply(mypredict, c(1), maxidx)
+#prediction <- c("setosa", "versicolor", "virginica")[idx]
+#table(true = iris.training$Species, predicted = prediction)
+
+CrossTable(x = gc.test$RESPONSE, y = prediction, prop.chisq = FALSE)
 
