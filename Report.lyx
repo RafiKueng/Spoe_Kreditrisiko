@@ -70,20 +70,40 @@
 
 \begin_body
 
+\begin_layout Title
+Gutes oder schlechtes Kreditrisiko? 
+\end_layout
+
+\begin_layout Title
+Modellierungen anhand des Datensatzes German Credits
+\end_layout
+
+\begin_layout Author
+Marc Spörri
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Einführung und Problembeschreibung
 \end_layout
 
 \begin_layout Standard
-In der folgenden Arbeit geht es darum, anhand unterschiedlicher Attribute
- (z.B.
+In der folgenden Arbeit geht es darum, Modelle zu entwickeln, um möglichst
+ präzise Vorhersagen zur Kreditwürdigkeit von Kreditanwärtern treffen zu
+ können.
+ Anhand unterschiedlicher Attribute (z.B.
  Kredithistorie, Zweck des Kredits, Vermögens- und Arbeitssituation etc.)
- das passendste Modell zur Vorhersage zum Kreditrating eines Kreditanwärters
- zu finden.
+ soll das passendste Modell und die einflussreichsten Variablen zur Vorhersage
+ des Kreditratings gefunden werden..
  Es werden verschiedene Modelle auf ihre Vorhersagekraft geprüft wie die
- logistische Regression, der Classification Tree, Random-Forest sowie die
- Neural Network Methode.
- Als Datenbasis dient uns ein Datenset deutscher Kreditanwärter im Umfang
+ logistische Regression, der Classification Tree, die Random-Forest-Methode
+ sowie die Neural Network Methode.
+ Als Datenbasis dient uns ein Datensatz deutscher Kreditanwärter im Umfang
  von 1000 Personen.
 \end_layout
 
@@ -96,7 +116,7 @@ Bereinigung der Daten
 \end_layout
 
 \begin_layout Standard
-Das Datenset German Credit besteht aus Daten zu 1000 Personen.
+Der Datensatz German Credit besteht aus Daten zu 1000 Personen.
  Die uns interessierende, abhängige Variable ist eine dichotome Variable
  mit den Ausprägungen 1 (gutes Kreditrating) und 0 (schlechtes Kreditrating).
  Die Verteilung ist ziemlich ungleich, denn 700 der 1000 Personen weisen
@@ -1789,10 +1809,11 @@ JOB
 
 \begin_layout Standard
 Wie wir sehen, erweisen sich viele der qualitativen Variablen als aufschlussreic
-h, sie weisen teils hoch signifikante bivariate Zusammenhänge mit dem Kreditrati
-ng auf.
- Nur 10 Variablen können eliminiert werden.
- Alle anderen 
+h, so ergeben sich teilweise hoch signifikante bivariate Zusammenhänge mit
+ dem Kreditrating.
+ Daher können wir nur zum jetzigen Zeitpunkt nur 10(?) qualitative Variablen
+ eliminieren.
+ Alle anderen werden für die spätere Modellierung verwendet.
 \end_layout
 
 \begin_layout Subsection
@@ -3479,7 +3500,7 @@ Modellierung
 \end_layout
 
 \begin_layout Subsection
-Erstellenvon Trainings- und Testdatensätzen
+Präparation der Trainings- und Testdatensätze
 \end_layout
 
 \begin_layout Standard
@@ -3504,10 +3525,6 @@ ngen werden mittels Bootstrap-Verfahren (1000 Bootstrap-Runden) durchgeführt.
  der Verteilung im originalen Datensatz (698:299).
 \end_layout
 
-\begin_layout Subsection
-Learning/Training Data Set
-\end_layout
-
 \begin_layout Standard
 Mache 3 verschiedene TrainingDatasets.
  0.3/0.7 , 0.8./0.2 und noch je mit korrekten proportionen.
@@ -3524,16 +3541,187 @@ Logistische Regression
 \end_layout
 
 \begin_layout Standard
-TODO alle Variablen nach der Vorselektion.
- Um Overfitting zu vermeiden AIC backward method nwenden
-\end_layout
-
-\begin_layout Paragraph
-Ergebnisse
+Als erstes Modell führen wir eine logistische Regression durch.
+ Hierbei schliessen wir zunächst alle in der Explorativen Datenanalyse selektier
+ten Variablen mit ein.
+ Um Overfitting zu vermeiden, werden wir anschliessend ein sprsameres, auf
+ die signifikanten Variablen reduziertes Modell verwenden.
 \end_layout
 
 \begin_layout Standard
-TODO Model Accuracy hier wäre SSres?
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+logistisches Regressionsmodell mit den selektierten Variablen aus der EDA
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:logistisches-Regressionsmodell-m"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/logreg_model1.PNG
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Wie wir der Grafik 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:logistisches-Regressionsmodell-m"
+
+\end_inset
+
+ entnehmen können, sind die auf dem 5%-Niveau signifikanten Variablen CHK_ACCT,
+ DURATION, NEW_CAR, EDUCATION, SAVE_ACCT, EMPLOYMENT, OTHER_INSTALL.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Dasselbe Modell mit zusätzlich der Variable AMOUNT wurde testweise durchgeführt.
+ AMOUNT erwies sich dabei einmal mehr als nicht signifikant.
+ Dies bestätigt nochmals die korrekte Eliminierung dieser Variable im vorherigen
+ Explanatory Data Analysis Prozess und dessen Scheinkorrelationscharakter
+ in der bivariaten logistischen Regression.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Grafik zeigt das reduzierte Modell, welches nur noch die signifikanten Variablen
+ beinhaltet.
+ Wir sehen, dass die Variablen auch im reduzierten Modell weiterhin signifikant
+ bleiben.
+ Zugleich zeigt der fasat gleich hohe AIC Wert (714.45 gegenüber 711.43),
+ dass es richtig war, alle anderen Variablen zu eliminieren.
+ Die ähnlichen AIC-Werte bedeuten, dass das reduzierte Modell kaum an Erklärungs
+kraft eingebüsst hat.
+ Am meisten Signifikanz weist die Variable CHK_ACCT auf, diese korreliert
+ stark positiv mit dem Kreditrating.
+ Es lässt sich also sagen, dass ein gutes Kreditrating erhält, wer entweder
+ gar kein Konto bei der entsprechenden Bank hat (CHK_ACCT Kategorie 3) oder
+ aber gute Bankkontoverhältnisse aufweist (Kategorie 2: >200DM).
+ Die hohe positive Korrelation der Kategorie 
+\begin_inset Quotes eld
+\end_inset
+
+kein Bankkonto
+\begin_inset Quotes erd
+\end_inset
+
+ dürfte auf das Geschäftsmodell zurückzuführen sein, dass eine Kreditvergabe
+ zur Akquirierung von neuen Kunden attraktiv sein kann.
+ Des Weiteren erhält eine Person eher ein gutes Kreditrating, je geringer
+ die Kreditdauer ist (DURATION), wenn der Kreditgrund KEIN Neuwagen ist
+ (NEW_CAR), wer eine gute Bilanz auf dem Sparkonto aufweist und wer auf
+ eine stabile, langfristige Jobhistorie zurückblicken kann (EMPLOYMENT).
+ Zudem erhält jemand eher ein positives Kreditrating, wer ein tieferes Bildungsn
+iveau hat (EDUCATION) und wer KEINE anderen Kreditfinanzierungspläne hat
+ (OTHER_INSTALL).
+ Diese letzteren beiden Zusammenhänge sind kontraintuitiv, könnte man doch
+ annehmen, dass besser situierte mit hohem Bildungsniveau und anderen Kreditfina
+nzierungsplänen eher ein gutes Rating erhalten.
+ Es ist aber nicht auszuschliessen, dass hier die Kausalitätsrichtung umgekehrt
+ ist und dass schlichtweg unter Kreditanwärtern eher Personen anzutreffen
+ sind mit tieferem Bildungsniveau und ohne andere Kreditfinanzierungspläne.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Reduziertes logistisches Modell
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:reduziertes-logistisches-Modell"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/logreg_model_reduced.PNG
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Vorhersage-Performance
+\end_layout
+
+\begin_layout Standard
+Das obige Regressionsmodell basiert auf dem 698 Beobachtungen umfassenden
+ Trainingsdatensatz.
+ Jetzt wird überprüft, wie gut das auf dem Trainingsdatensatz angewandte
+ logistische Modell den 299 Beobachtungen umfassenden Testdatensatz vorhersagen
+ kann.
+ Wie wir der Grafik xy entnehmen können, ist das logistische Regressionsmodell
+ mit xy% Vorhersagewahrscheinlichkeit sehr gut darin, Personen mit einem
+ guten Kreditrating vorherzusagen.
+ Hingegen fällt es relativ schwierig, ein schlechtes Kreditrating korrekt
+ vorherzusagen.
+ Hier liegt das Modell zu ungefähr 60% falsch.
+ Die overall-Misclassification-Rate des logistischen Modells ist dadurch
+ doch nicht so klein und liegt bei 25%.
+ Die tiefe True Negative Response Rate von knapp unter der Hälfte (48%)
+ ist insbesondere verheerend, weil wir eigentlich daran interessiert sind,
+ keine Kredite an Personen mit schlechter Kreditwürdigkeit zu vergeben.
+ Und in 20% der Fälle würden wir mit diesem Modell eben auch an Personen
+ einen Kredit vergeben, die eigentlich ein schlechtes Kreditrating aufweisen.
 \end_layout
 
 \begin_layout Subsection
@@ -3590,6 +3778,10 @@ gestutzt
  wie die Reserven auf dem Sparkonto (SAV_ACCT) und der Zweck des Kredits.
  Hier kann dann letztlich der Wunsch nach einem Gebrauchtwagen noch zu einem
  positiven Kreditrating führen.
+\end_layout
+
+\begin_layout Paragraph
+Vorhersage-Performance
 \end_layout
 
 \begin_layout Subsection
@@ -3786,10 +3978,96 @@ Neural Network
 \begin_layout Standard
 Eine weitere Methode, eine Klassifizierung vorzunehmen, bietet die Neural
  Network Methode.
- Hierbei werden die Einflussvariablen entsprechend gewichtet.
- Empfohlen ist, die Hidden Layers auf 2 bis 3 Nodes zu beschränken um Overfittin
-g zu vermeiden.
- Wir sehen hier ebenfalls
+ Das Neurale Netzwerk setzt voraus, dass alle Variablen quantitativ sind.
+ Zu diesem Zweck wurden vorgängig alle kategorialen Variablen in Dummy-Variablen
+ umgewandelt.
+ Der Variablentyp 
+\begin_inset Quotes eld
+\end_inset
+
+quantitativ
+\begin_inset Quotes erd
+\end_inset
+
+ ist eine Voraussetzung, damit dass Neurale Netzwerk lernen und die Einflussvari
+blen entsprechend gewichten kann.
+ Um Overfitting zu vermeiden, beschränken wir die Hidden Layers auf 2 Nodes.
+ Auch das Neurale Netzwerk gibt uns starke Evidenz dafür, dass die Variable
+ CHK_ACCT, DURATION und AMOUNT die einflussreichsten Variablen mit dem höchsten
+ Gewicht sind (von oben nach unten).
+ Diese Tendenz hat uns zuvor auch schon der Classification Tree, Random
+ Forest sowie das logistische Regressionsmodell aufgezeigt.
+ Im Unterschied zu vorigen Modellen entpuppen sich in der Neural Network
+ Modellierung aber auch Kreditzwecke wie NEW_CAR UND USED_CAR und Radio/TV
+ als durchaus einflussreich.
+ Hingegen fällt Vergleich zu den vorherigen drei Modellen der Einfluss der
+ Variable SAV_ACCT etwas ab.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Einflussreichste Variablen gemäss Neural Network Methode
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Einflussreichste-Variablen-gemäs-1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Grafiken/definitiv used/NNnet_alle.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Des Weiteren stellen wir fest, dass das neurale Netzwerk nicht besser abschneide
+t in der Vorhersagequalität wie aus der Tabelle hervorgeht.
+ Abschliessend kann also gesagt werden, dass aufgrund der Rechenintensität,
+ der durchschnittlichen Vorhersage-Performance sowie der erschwerten Nachvollzie
+hbarkeit ist das Neural Network für den Zweck der Vorhersage eines guten
+ oder schlechten Kreditratings nicht optimal.
+ 
+\end_layout
+
+\begin_layout Standard
+# Neural network advantages # Robust to noisy data # Neural networks disadvantag
+es # Less interpretable than other models as classification trees # longer
+ training times
+\end_layout
+
+\begin_layout Standard
+Der rechenintensive Prozess der Vorhersage ist relativ schwierig nachzuvollziehe
+n
 \end_layout
 
 \begin_layout Paragraph
@@ -3842,6 +4120,65 @@ TODO overlap of the models um zu zeigen dass prediction rate von 2 modellen
 Konklusion
 \end_layout
 
+\begin_layout Paragraph*
+Wichtigste Einflussvariablen zur Bestimmung des Kreditratings
+\end_layout
+
+\begin_layout Standard
+Alle 4 Modelle zeigen eine starke Evidenz dafür, dass die Variable Bankkonto
+ (CHK_ACCT) den mit Abstand grössten Einfluss auf das Kreditrating ausübt.
+ Wie insbesondere der Classification Tree anschaulich zeigte, können gute
+ Werte beim Bankkonto bereits fast die Hälfte (46%) der positiven Kreditratings
+ erklären.
+ Das starke Gewicht dieser Variable wird auch bei der Neural Network Methode
+ und beim Random-Forest, wo die Variable mehr als 30% zur Accuracy beiträgt
+ sowie durch die sehr hohen Signifikanzwerte aus der logistischen Regression
+ bestätigt.
+ Jemand sollte also bei der Entscheidung über ein gutes oder schlechtes
+ Kreditrating sein Hauptaugenmerk auf die Verhältnisse auf dem Bankkonto
+ legen: Für ein gutes Kreditrating sind dabei nicht nur gute Rücklagen auf
+ dem Konto (>200DM) entscheidend, auch die Nicht-Existenz eines Bankkontos
+ kann ein äusserst positiver Faktor für das Kreditrating sein.
+ Dies wohl deshalb, weil eine Kreditvergabe ein attraktives Geschäftsmodell
+ zur Akquirierung von Neukunden sein könnte.
+\end_layout
+
+\begin_layout Standard
+Aber auch wenn jemand kein oder nur wenig Geld auf dem Bankkonto hat, so
+ ist das noch kein Grund für ein schlechtes Kreditrating.
+ Weitere einflussreiche Variablen sind die Kreditdauer (DURATION) sowie
+ Spareinlagen (SAVE_ACCT).
+ Diese beiden Variablen zeigen sich nach der Variable CHK_ACCT in allen
+ Modellen als zweitwichtigste Faktoren und können daher als sehr robust
+ eingeschätzt werden.
+ Diese Variablen sollten bei der Kreditvergabe auf jeden Fall mit in Betracht
+ gezogen werden.
+ So kann beispielsweise auch bei schlechter Situation auf dem Bankkonto
+ durchaus ein gutes Kreditrating angenommen werden, wenn die Kreditdauer
+ dafür eher tief liegt und wenn Spareinlagen vorhanden sind.
+ Beim Sparkonto wirkt sich ähnlich wie bei der Variable Bankkonto die Nicht-Exis
+tenz eines Sparkontos (Ausprägung mit dem höchsten Wert für diese Variable)
+ begünstigend aus, wobei dies ebenfalls auf die intendierte Akquirierung
+ von Neukunden zurückzuführen sein dürfte.
+\end_layout
+
+\begin_layout Standard
+Weitere Variablen, die aber nicht in dieser Robustheit von allen Modellen
+ gestützt werden, sind Variablen, die den Kaufzweck betreffen: Hierbei wirkt
+ sich der Kauf eines Gebrauchtwagens (USED_CAR) begünstigend auf das Kreditratin
+g aus (Evidenz durch den Classification Tree und Neural Network) , negativ
+ hingegen der gewünschte Kauf eines Neuwagens (Evidenz durch die logistische
+ Regression und Neural Network).
+ Zusätzlich gibt es auch noch Hinweise darauf, dass sozioökonomische Variablen
+ wie solide Arbeitsverhältnisse (EMPLOYMENT) ebenfalls eine kleine Rolle
+ bei der Einschätzung des Kreditratings spielen können (Evidenz durch logistisch
+e Regression und Random-Forest).
+\end_layout
+
+\begin_layout Paragraph
+Modellempfehlung
+\end_layout
+
 \begin_layout Standard
 wir können ncoh nicht umfaseend zufriende sein, da False positives ist grösstes
  Problem, wenn Kredite versehentlich an schlechte Debitoren gegeben werden
@@ -3887,6 +4224,380 @@ Kombination: Die 4 verschiedenen Methoden stützen die einflussreichsten
 \begin_layout Standard
 Die Möglichkeiten des Datensatzes sind begrenzt, um bessere Vorhersagen
  für
+\end_layout
+
+\begin_layout Standard
+Die Tatsache, dass alle Modelle eine sehr ähnliche Misclassification Error
+ aufweisen, lässt darauf schliessen, dass wir mit den Modellen das Optimum
+ rausgeholt haben.
+ Es gibt kein Modell, das hier noch eine wesentliche Verbesserung zu erreichen
+ vermag.
+ Wir müssen daraus schliessen, dass eine bessere Misklassifikationsrate
+ letztlich nur über eine Verbesserung der Datenqualität, aber nicht mehr
+ durch das Modelling erreichbar ist.
+ Eine gewisse Misclassification Error liegt schon in der Natur der abhängigen
+ Variable RESPONSE begründet.
+ Die Kreditratings sind nicht deterministisch, sondern basieren auf menschlichen
+ Einschätzungen, die naturgemäss bereits eine gewisse Varianz beinhalten.->
+ menschliche Fehler etc.
+\end_layout
+
+\begin_layout Standard
+Aufgrund des Datensatzes und der doch auch relativ ungleichen Verteilung
+ (70:30) zwischen guten Kreditratings und schlechten, sowie der Natur der
+ abhängigen Variable, welche auf menschlichen Einschätzungen beruht, ist
+ keine weitere Reduktion der Misclassification möglich 
+\end_layout
+
+\begin_layout Standard
+es handelt sich um menschliche Einschätzungen und keine standardisierte
+ Raster.
+ Daher liegt es in der Natur der Sache, dass ein beträchtlicher Anteil an
+ Missklassifikation bereits in den Daten zu finden ist und auch durch Modelle
+ nicht ausgebessert werden können.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="7">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Modell
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Precision
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Misclassification Error
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+True Positive Rate
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+False Positive Rate
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+logistische Regression
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+79%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+25%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+86%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+52%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Classification Tree
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Random Forest
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Neural Network
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
 \end_layout
 
 \end_body
