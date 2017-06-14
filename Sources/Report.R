@@ -1,24 +1,4 @@
 
-install.packages("Hmisc") #important
-install.packages("DescTools") #imp
-install.packages("rpart") #imp
-install.packages("rpart.plot") #imp
-install.packages("ggplot2")
-install.packages("lattice")
-install.packages("RColorBrewer") #imp.
-install.packages("corrplot")
-install.packages("psych")
-install.packages("GGally")
-install.packages("corrr")
-install.packages("ggcorrplot")
-install.packages("gridExtra")   #imp.
-install.packages("grid")     #imp.
-install.packages("gmodels")   #imp.
-install.packages("nnet") 
-install.packages("magrittr")   
-install.packages("partykit")
-install.packages("rattle")
-
 #loading all necessary libraries
 library(Hmisc) #important
 library(DescTools) #imp
@@ -40,52 +20,7 @@ library(magrittr)
 
 
 
-####### Neural Network and Fitting/Diagnostics/Descreptive Statistics in General
-###
-a) Fitting a neural network model
-require(nnet)
-tst <- nnet(1000/MPG.city ~ Weight + Origin + Type, Cars93, linout = T, size = 0, 
-            decay = 0, rang = 0, skip = T, trace = T)
-# weights:  8
-initial  value 213926.871110 
-iter  10 value 1560.625594
-final  value 1461.849465 
-converged
 
-coef(tst)
-b->o      i1->o      i2->o      i3->o      i4->o      i5->o 
-6.0150986  0.0133782 -1.2029033 -0.6509524  0.7844866 -1.4885942 
-i6->o      i7->o 
-2.9627636  2.3876101 
-
-
-
-b) Fitting a linear regression model
-tst.reg <- lm(MPG.city ~ Weight + Origin + Type, Cars93)
-par(mfrow = c(2, 2), pty = "s")
-plot(tst.reg)
-
-par(mfrow = c(1, 1))
-
-library(car)
-qqPlot(lm(MPG.city ~ Weight + Origin + Type, data = Cars93), simulate = FALSE, 
-       main = "Q-Q Plot", labels = FALSE, xlab = "t Quantiles", ylab = "Studentized Residuals")
-
-###boxcox ist sehr gut um zu sehen in welchem 95% bereich der loglikelihood akzeptabel ist
-boxcox(MPG.city ~ Weight + Origin + Type, data = Cars93)
-
-
-tst1 <- lm(1000/MPG.city ~ Weight + Origin + Type, Cars93)
-coef(tst1)
-
-par(mfrow = c(2, 2), pty = "s")
-plot(tst1)
-
-par(mfrow = c(1, 1))
-qqPlot(lm(1000/MPG.city ~ Weight + Origin + Type, data = Cars93), simulate = FALSE, 
-       main = "Q-Q Plot", labels = FALSE, xlab = "t Quantiles", ylab = "Studentized Residuals")
-
-######## Finish Fitting and Diagnostics
 
 
 #find out which model (, binomial regression rain forest, neural network, vector machine etc.) is the best for our data
@@ -118,6 +53,7 @@ qqPlot(lm(1000/MPG.city ~ Weight + Origin + Type, data = Cars93), simulate = FAL
 #1. Preparation of the data
 #TODO : in EDUCATION Var gibts es 1 obs. mit -1 -> ändern in 1, da wahrscheinlich tippfehler
 # DITO GUARANTOR 1 obs. mit 2 statt 0/1
+
 
 gc <- read.csv2("C:/Users/Spörri/Desktop/Marc UniNE/SS 17 Seminar of Applied Statistics/Homework/GermanCredit.csv",dec=".",header=T)
 quanti<-c(3,11,23)  #select the columns of the quantitative variables
@@ -153,7 +89,7 @@ Desc(RESPONSE~.,data=gc)
 
 ##2.1 Descriptives Stats of the qualitatives var
 #adjusting the categorial variables by (x-min)/(max-min)
-showing the barplots after adjusting
+#TO DO: I schould showing the barplots here after this adjusting
 
 ##2.2 selection of the qualitative var: crossing all qualitative variables with the RESPONSE variable
 #24 crosstables
@@ -291,9 +227,9 @@ hist(DURATION)
 hist(AMOUNT)
 hist(AGE)
 par(mfrow=c(1,3))
-boxplot(split(DURATION,RESPONSE),xlab="Credit Rating",ylab="DURATION OF CREDIT in months", notch=T,varwidth=T,col=lblue)
-boxplot(split(AMOUNT,RESPONSE),xlab="Credit Rating",ylab="CREDIT AMOUNT", notch=T,varwidth=T,col=lblue)
-boxplot(split(AGE,RESPONSE),xlab="Credit Rating",ylab="AGE", notch=T,varwidth=T,col=lblue)
+boxplot(split(DURATION,RESPONSE),xlab="Credit Rating",ylab="DURATION OF CREDIT in months", notch=T,varwidth=T,col=c("red","blue"))
+boxplot(split(AMOUNT,RESPONSE),xlab="Credit Rating",ylab="CREDIT AMOUNT", notch=T,varwidth=T,col=c("red","blue"))
+boxplot(split(AGE,RESPONSE),xlab="Credit Rating",ylab="AGE", notch=T,varwidth=T,col=c("red","blue"))
  
 
 INSTALL_RATE_quant<-as.numeric(INSTALL_RATE)
@@ -354,22 +290,25 @@ plot(fit.ct.boot)
 
 
 # Classification tree from R code of Workshop 2
+library(knitr)
+
+library(gmodels)
 
 library(rpart)
 
-#set.seed(010666)
+set.seed(1657)
 
 
 gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN
-gcform_all=RESPONSE ~ OBS.+CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN
-#gcform_all=regression formula for all variables due to the fact that unfortunately RESPONSE~. produces errors
+gcform_all=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN
+#gcform_all=regression formula for all variables (without obs) due to the fact that unfortunately RESPONSE~. produces errors
 
-gc.ct<-rpart(formula=gcform_reduced,method="class",data=gc,cp=0.001)
+gc.ct<-rpart(formula=gcform_all,method="class",data=gc,cp=0.001)
 print(gc.ct)
 summary(gc.ct)
 
 gc.ct<-gc %>%
-  rpart(formula=gcform_reduced,method="class",cp=0.001) %>%
+  rpart(formula=gcform_all,method="class",cp=0.001) %>%
   summary()
 
 #par(mar=numeric(4))
@@ -447,8 +386,10 @@ summary(gc)
 data<-na.omit(gc)
 nobs<-nrow(data)
 form<-formula(RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN)
+#all variables except obs included
 target<-all.vars(form)[1]
 vars<- -grep('test',names(data))
+vars<- names(data)
 set.seed(33)
 train<-sample(nobs,0.7*nobs) #selecting 70% of all
 train
@@ -488,12 +429,11 @@ gcRF$confusion #use  #same as print(gcRF)?
 #i)Finally analyzing the confusion matrix for the Test Dataset   
 #TODO problem mit grep und dessen pattern wahrscheinlich, -> help dazu ans hauen
 library(gmodels)
-vars.pred=-grep('test2', names(data))
+vars.pred=-grep('test2', names(gcRF))
 vars.pred
-gc.pred=predict(gcRF,data[-train,vars.pred], type="class")
+gc.pred=predict(data,gcRF[-train,vars.pred], type="class")
 gc.pred
 CrossTable(x=data$RESPONSE[-train],y=gc.pred, prop.chisq=F)
-
 
 
 
