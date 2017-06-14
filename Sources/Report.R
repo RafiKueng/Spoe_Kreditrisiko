@@ -66,14 +66,21 @@ quali<-quali[-quanti]
 RESPONSE<-as.factor(gc[,32])
 gc.quali<-apply(gc[,quali],2,as.factor)
 gc.quali
-gc.quali[,8][gc.quali[,8]== -1] <- 1 #cleaning the var. EDUCATION because there was one typing error (obs. 37 with "-1" instead of presumably "1"); "-1" represents no category for this variable
-gc.quali[,17][gc.quali[,17]== 2] <- 1 #cleaning the var. GUARANTOR because there was one typing error (obs. 234 with "2" instead of presumably "1"); "2" represents no category for this variable
+#gc.quali[,8][gc.quali[,8]== -1] <- 1 #cleaning the var. EDUCATION because there was one typing error (
+#gc.quali[,17][gc.quali[,17]== 2] <- 1 #cleaning the var. GUARANTOR because there was one typing error (
 summary(gc.quali) #summary for qualitative variables
 gc.quanti<-gc[,quanti]
 gc.quanti
-gc.quanti<-gc.quanti[-c(537),] #deleting observation 537 because Age was = 125 which cannot be a true value
-gc.quali<-gc.quali[-c(537),]  #idem, deleting obs. 537 for getting the same number of observations for all type of variables
-RESPONSE<-RESPONSE[-c(537)]   #idem, deleting obs. 537 for getting the same number of observatiosn for the RESPONSE var.
+
+#obs. 37 with "-1" for EDUCATION; "-1" represents no category for this variable
+#obs. 234 with "2" for GUARANTOR; "2" represents no category for this variable
+#obs. 537 with "125" for AGE, which is unplausible
+
+gc.quanti<-gc.quanti[-c(37,234,537),] #deleting obs. 37, 234 537 due to the fact of inplausible values
+gc.quali<-gc.quali[-c(37,234,537),]  
+RESPONSE<-RESPONSE[-c(37)]   
+RESPONSE<-RESPONSE[-c(234)]
+RESPONSE<-RESPONSE[-c(537)]
 summary(gc.quanti) #summary for the quantitative variables
 gc<-cbind(gc.quali,gc.quanti,RESPONSE)
 gc
@@ -118,6 +125,9 @@ CrossTable(USED_CAR, RESPONSE, digits=2, expected=T,prop.chisq=TRUE)
 CrossTable(FURNITURE, RESPONSE, digits=2, max.width = 5, expected=FALSE, prop.r=TRUE, prop.c=TRUE, prop.t=TRUE, prop.chisq=TRUE)
 CrossTable(FURNITURE, RESPONSE, digits=2, expected=T,prop.chisq=TRUE)
 #-> eliminate Variable! PVALUE is 0.5
+
+CrossTable(RADIO.TV, RESPONSE, digits=2, max.width = 5, expected=FALSE, prop.r=TRUE, prop.c=TRUE, prop.t=TRUE, prop.chisq=TRUE)
+CrossTable(RADIO.TV, RESPONSE, digits=2, expected=T,prop.chisq=TRUE)
 
 CrossTable(EDUCATION, RESPONSE, digits=2, max.width = 5, expected=FALSE, prop.r=TRUE, prop.c=TRUE, prop.t=TRUE, prop.chisq=TRUE)
 CrossTable(EDUCATION, RESPONSE, digits=2, expected=T,prop.chisq=TRUE)
