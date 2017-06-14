@@ -283,6 +283,59 @@ logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binom
                  summary(logregAMOUNT) #hochsignifikant
 
                  
+                 
+                 
+                 
+                 # These are the sets of variables we can compare
+                 
+               
+                 # the selected variables at the end of the variable selection processus
+                 #the selected variables are:
+                 #CHK_ACCT
+                 #HISTORY
+                 #NEW_CAR
+                 #USED_CAR
+                 #RADIO_TV
+                 #EDUCATION
+                 #SAV_ACCT
+                 #EMPLOYMENT
+                 #MALE_SINGLE
+                 #CO-APPLICANT
+                 #REAL_ESTATE
+                 #PROP_UNKN_NONE
+                 #OTHER_INSTALL
+                 #RENT
+                 #OWN_RES
+                 #FOREIGN
+                 #GUARANTOR
+                 #DURATION
+                 #AGE
+                 #RESPONSE
+                 model1 <- gc[,c(2,4,5,7,8,10,11,14,16,17,19,20,21,22,23,28,29,31,32)]
+                  #model with HISTORY and AMOUNT
+                 model2 <- gc[,c(2,3,4,5,7,8,10,11,14,16,17,19,20,21,22,23,28,29,30,31,32)]
+                 # Full model
+                 gc
+          
+                 
+                 
+                 #-----------------------
+                 # Data Partition
+                 #-----------------------
+                 # We are going to compare predictions made using different models
+                 # partitioning data into training and testing datasets
+                 set.seed(256)
+                 ind <- sample(2, nrow(gc), replace = TRUE, prob = c(0.7, 0.3))
+                 # Creates the (training and testing) datasets for each model using the same partition
+
+                 training_full <- gc[ind==1,]
+                 training1 <- model1[ind==1,]
+                 training2 <- model2[ind==1,]
+                 testing_full <- gc[ind==2,]
+                 testing1 <- model1[ind==2,]
+                 testing2 <- model2[ind==2,]
+
+                 
 ###3 Modelling
 ###3.1 Classification Tree
 
@@ -335,8 +388,8 @@ set.seed(1657)
 
 gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+SAV_ACCT+EMPLOYMENT+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+FOREIGN+GUARANTOR
 
-
-gc.ct<-rpart(formula=gcform_reduced,method="class",data=gc,cp=0.001)
+#setting cp near to 0 to get a tree with as many branches as possible
+gc.ct<-rpart(formula=gcform_reduced,method="class",data=training1,cp=0.001)
 print(gc.ct)
 summary(gc.ct)
 
@@ -353,8 +406,13 @@ options(digits=5)
 printcp(gc.ct)
 plotcp(gc.ct)
 
-# Using the 1-SE method
+# Plot the RESUBSTITUTION ERROR (rel error)  against tree size
+with(tree1, plot(cptable[,3], xlab = "Tree Number", ylab = "Resubstitution Error (R)", type = "b"))
+# As previously explained, we should not base our decision on the resubstitution error
+with(tree1, plot(cptable[,4], xlab = "Tree Number", ylab = "Cross-validated error (R(cv))", type = "b"))
+# From this graph we get the smallest xerror is in the third tree, cpt value is 0.93
 
+# Using the 1-SE method
 cp<-gc.ct$cptable
 opt<-which.min(gc.ct$cptable[,"xerror"])
 r<-cp[, 4][opt]+cp[, 5][opt]
