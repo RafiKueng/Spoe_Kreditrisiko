@@ -20,23 +20,6 @@ library(magrittr)
 
 
 
-
-
-
-#find out which model (, binomial regression rain forest, neural network, vector machine etc.) is the best for our data
-#response variable is whether we give a credit or not
--> recommended classification tree, it's mmuch easier to explain than f.e. blackbox neural neutworks' und for allem, predi tion accuracy ist gut! und anschaulich für kunde
--> kleinster baum nehmen, 2 äste
--> dont use too sophisticated models! oder vorsichtig damit
-
-#Presentation
-3 kurze schritte:
-  - was ist das problem? problem erklären
-  - welche modelle habe ich angewendet
-  - conclusion warum das oder das Modell letztlich angewendet wurde.
-
-
-
 ###for presentation, only show the most important results (not trial which doesnt give a good output, neural networks f.e.)
 
 
@@ -256,38 +239,6 @@ logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binom
 ###3 Modelling
 ###3.1 Classification Tree
 
-#e) Predictions
-library(knitr)
-gc.pred <- predict(gc.prune, type = "class")
-table(gc.pred, RESPONSE)
-
-library(gmodels)
-CrossTable(x = RESPONSE, y = gc.pred, prop.chisq = FALSE)
-
-summary(RESPONSE~.,data=gc)
-
-gc.ct<-rpart(RESPONSE~.,method="class",data=gc,cp=0.001)
-gc.ct<-rpart(RESPONSE~., main="",type=4,extra=4,faclen=0)
-cols<-ifelse          #better graph
-
-print(gc.ct)
-summary(gc.ct)
-
-
-#looking for the best parameter of complexity
-
-subset(fit.ct.cv$results,subset=cp==fit.ct.cv$bestTune$cp)
-
-plot(fit.ct.cv)
-subset(fit.ct.recv$results,subset=cp==fit.ct.recv$bestTune$cp)
-
-plot(fit.ct.recv)
-subset(fit.ct.boot$results,subset=cp==fit.ct.boot$bestTune$cp)
-
-plot(fit.ct.boot)
-#use boottrap to because decision tree is not stable
-
-
 
 # Classification tree from R code of Workshop 2
 library(knitr)
@@ -372,8 +323,6 @@ plot(as.party(gc.ct1),tp_args = list(id = FALSE))
 
 
 
-
-
 ##3.2 Random Forest
 
 library(rattle)
@@ -389,7 +338,6 @@ form<-formula(RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDU
 #all variables except obs included
 target<-all.vars(form)[1]
 vars<- -grep('test',names(data))
-vars<- names(data)
 set.seed(33)
 train<-sample(nobs,0.7*nobs) #selecting 70% of all
 train
@@ -435,6 +383,7 @@ gc.pred=predict(data,gcRF[-train,vars.pred], type="class")
 gc.pred
 CrossTable(x=data$RESPONSE[-train],y=gc.pred, prop.chisq=F)
 
+gcRF$RESPONSE[-train]
 
 
 
