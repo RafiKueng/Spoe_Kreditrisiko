@@ -555,5 +555,202 @@ CrossTable(x=RESPONSE[-train],y=gc.pred, prop.chisq=T)
 
 
 #3.4 Neural Networks
+require(nnet)
+
+neur1 <- nnet(RESPONSE ~ ., data = training1, size = 2, rang = 0.1, decay = 5e-04, 
+              maxit = 200)
+
+library(NeuralNetTools)
+par(mar = numeric(4), family = "serif")
+plotnet(neur1, pos_col = "darkgreen", neg_col = "darkblue")
 
 
+# ################################
+# Preparing data
+
+# Need to have data in the range from 0 to 1
+# For all binary variables this is already done
+# No need to convert variables to factor/categorical
+# Min-Max Normalization
+# For the numerical variables
+
+
+
+# Neural Networks
+# First I will just run a model with the variables seen as important when doing the classification tree
+library(neuralnet)
+set.seed(256)
+n <- neuralnet(RESPONSE ~ CHK_ACCT + SAV_ACCT + DURATION,
+               data = m,
+               hidden = 1,
+               err.fct = "ce",
+               linear.output = FALSE)
+plot(n) # We get a completely connected neural network
+
+# Prediction
+output <- compute(n, data[,c("CHK_ACCT","SAV_ACCT","DURATION")])
+head(output$net.result)
+head(data[,31])
+
+head(data[1,])
+# How the first value is calculated?
+in4 <- -1.1152 + (0.333333333*-0.52187) + (0*-0.33767) + (0.6470588235*0.81918) # input to node 4
+out4 <- 1/(1+exp(-in4)) # sigmoid function
+in5 <- 5.15315 + (out4*-18.74068)
+out5 <- 1/(1+exp(-in5)) # get first value for net.result
+data$RESPONSE[1]
+
+# Confusion Matrix & Misclassification Error - training data
+output <- compute(n, data[,c("CHK_ACCT","SAV_ACCT","DURATION")])
+p1 <- output$net.result
+pred1 <- ifelse(p1>0.5, 1, 0)
+tab1 <- table(pred1, data$RESPONSE)
+tab1 # off diagonals are the misclassifications
+sum(diag(tab1))/sum(tab1) # accuracy
+1-sum(diag(tab1))/sum(tab1) # misclassification error
+
+# Confusion Matrix & Misclassification Error - testing data
+output <- compute(n, testing[,c("CHK_ACCT","SAV_ACCT","DURATION")])
+p2 <- output$net.result
+pred2 <- ifelse(p2>0.5, 1, 0)
+tab2 <- table(pred2, testing$RESPONSE)
+tab2 # off diagonals are the misclassifications
+sum(diag(tab2))/sum(tab2) # accuracy
+1-sum(diag(tab2))/sum(tab2) # misclassification error
+
+# More neurons in one hiden layer
+set.seed(333)
+n <- neuralnet(RESPONSE ~  CHK_ACCT+SAV_ACCT+DURATION,
+               data = training,
+               hidden = 5,
+               err.fct = "ce",
+               linear.output = FALSE,
+               lifesign = "full",
+               rep = 5)
+plot(n, rep = 2) # 2 repetition has the smaller error among all networks
+
+# More neurons and more hiden layers
+set.seed(333)
+n <- neuralnet(RESPONSE ~  CHK_ACCT+SAV_ACCT+DURATION,
+               data = training,
+               hidden = c(3,5),
+               err.fct = "ce",
+               linear.output = FALSE)
+# it is not sure that adding more layers will improve your model
+plot(n)
+
+# Neural network advantages
+# Robust to noisy data
+# Neural networks disadvantages
+# Less interpretable than other models as classification trees
+# longer training times
+
+
+
+
+
+
+
+
+
+# Min-Max normalization
+data$DURATION <- (data$DURATION - min(data$DURATION))/(max(data$DURATION) - min(data$DURATION))
+data$AMOUNT <- (data$AMOUNT - min(data$AMOUNT))/(max(data$AMOUNT) - min(data$AMOUNT))
+data$INSTALL_RATE <- (data$INSTALL_RATE - min(data$INSTALL_RATE))/(max(data$INSTALL_RATE) - min(data$INSTALL_RATE))
+data$AGE <- (data$AGE - min(data$AGE))/(max(data$AGE) - min(data$AGE))
+data$NUM_DEPENDENTS <- (data$NUM_DEPENDENTS - min(data$NUM_DEPENDENTS))/(max(data$NUM_DEPENDENTS) - min(data$NUM_DEPENDENTS))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#3.3 Neural Networks
+#for the neuralnet we have to convert all variables in numerical variables
+#we do that by the model.matrix function
+
+gc <- model.matrix( 
+  ~ RESPONSE+CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN, 
+  data = gc
+)
+head(gc)
+summary(gc)
+str(gc)
+
+#1. Training Data Set
+library(nnet)
+require(MASS)
+require(nnet)
+
+samp <- c(sample(1:500, 250), sample(501:1000, 250))
+gc.training <- gc[samp, ]
+summary(gc.training)
+
+#2. Test Data Set
+gc.test <- gc[-samp, ]
+summary(gc.test)
+
+
+#3. Fitting a Neural network
+gc.net <- nnet(gcform_model2, data = gc.training, size = 2, rang = 0.1, decay = 5e-04, 
+               maxit = 200)
+
+
+#4.Neural Network Plot
+library(NeuralNetTools)
+par(mar = numeric(4), family = "serif")
+plotnet(gc.net, pos_col = "darkgreen", neg_col = "darkblue")
+
+#5. Misclassification Table
+table(true = gc.test$RESPONSE, predicted = predict(gc.net, gc.test, type = "class"))
+
+library(gmodels)
+gc.pred <- predict(gc.net, gc.test, type = "class")
+CrossTable(x = gc.test$RESPONSE, y = gc.pred, prop.chisq = FALSE)
+
+
+#6. Using Neural neuralnet package
+library(neuralnet)
+nnet_gctrain <- gc.training
+# binarize the categorical output
+nnet_gctrain <- cbind(nnet_gctrain, gc.training$RESPONSE == 0)
+nnet_gctrain <- cbind(nnet_gctrain, gc.training$RESPONSE == 1)
+
+names(nnet_gctrain)[34] <- "good_rating"
+names(nnet_gctrain)[33] <- "bad_rating"
+summary(nnet_gctrain)
+
+head(nnet_gctrain)
+
+nnet_gctest <- gc.test
+nnet_gctest <- cbind(nnet_gctest, gc.test$RESPONSE == 0)
+nnet_gctest <- cbind(nnet_gctest, gc.test$RESPONSE == 1)
+names(nnet_gctest)[34] <- "good_rating"
+names(nnet_gctest)[33] <- "bad_rating"
+
+head(nnet_gctest)
+
+#funktinoiert noch nicht Error in neurons[[i]] %*% weights[[i]] : 
+#gcform_reduced  #to get all our explanatory variables
+nn <- neuralnet(good_rating + bad_rating ~ CHK_ACCT+DURATION+AMOUNT+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+SAV_ACCT+EMPLOYMENT+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+FOREIGN+GUARANTOR, data = nnet_gctrain, hidden = c(2))
+plot(nn)
+
+mypredict <- compute(nn, gc.training[-5])$net.result
+#Put multiple binary output to categorical output
+#maxidx <- function(arr) {
+#  return(which(arr == max(arr)))
+#}
+#idx <- apply(mypredict, c(1), maxidx)
+#prediction <- c("setosa", "versicolor", "virginica")[idx]
+#table(true = iris.training$Species, predicted = prediction)
+
+CrossTable(x = gc.test$RESPONSE, y = prediction, prop.chisq = FALSE)
