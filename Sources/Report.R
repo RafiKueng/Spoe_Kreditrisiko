@@ -20,7 +20,7 @@ library(nnet)   #imp.
 library(NeuralNetTools)
 library(neuralnet)
 
-gc <- read.csv2("C:/Users/Spörri/Desktop/Marc UniNE/SS 17 Seminar of Applied Statistics/Homework/GermanCredit.csv",dec=".",header=T)
+gc <- read.csv2("GermanCredit.csv",dec=".",header=T)
 quanti<-c(3,11,23)  #select the columns of the quantitative variables
 #I'm considering INSTALL_RATE (var nr. 14), num_credits (27) and num_dependents (29) as a categorial variable, since 
 #none of these 3 variables has more than 4 ausprägungen, especially num_dependents with only 2 ausprägungen
