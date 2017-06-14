@@ -92,7 +92,7 @@ End
 \quotes_language german
 \papercolumns 1
 \papersides 1
-\paperpagestyle default
+\paperpagestyle plain
 \listings_params "language=R,basicstyle={\ttfamily},columns=fixed,basewidth={0.51em},keywordstyle={\color{blue}},commentstyle={\color{ForestGreen}},stringstyle={\color{brown}},escapeinside={(*}{*)},morekeywords={*,...},breaklines=true"
 \tracking_changes false
 \output_changes false
@@ -103,41 +103,264 @@ End
 
 \begin_body
 
-\begin_layout Title
-Gutes oder schlechtes Kreditrisiko?
-\begin_inset Newline newline
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
 \end_inset
 
 
-\size larger
-Modellierungen anhand des Datensatzes German Credits
 \end_layout
 
-\begin_layout Title
+\begin_layout Standard
+\begin_inset Phantom Phantom
+status open
+
+\begin_layout Plain Layout
+phantom space
+\end_layout
+
+\end_inset
+
+
+\size huge
+
+\begin_inset VSpace 2cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+
+\series bold
+\size giant
+Gutes oder schlechtes Kreditrisiko?
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\size huge
+\begin_inset CommandInset line
+LatexCommand rule
+offset "0.5ex"
+width "100col%"
+height "1pt"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing onehalf
+\noindent
+\align center
+
+\series bold
+\size huge
+Modellierungen anhand des
+\begin_inset Newline newline
+\end_inset
+
+Datensatzes German Credits
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset VSpace 3cm
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 
 \size larger
 Report in Seminar of Applied Statistics, Spring 2017
 \end_layout
 
-\begin_layout Title
+\begin_layout Standard
+\align center
 
 \size larger
 University of Neuchâtel
 \end_layout
 
-\begin_layout Author
-Referent: Prof.
- Dr.
- Jacques Zuber
-\end_layout
+\begin_layout Standard
+\begin_inset VSpace vfill
+\end_inset
 
-\begin_layout Author
-Author: Marc Spörri
+
 \end_layout
 
 \begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="3">
+<features tabularvalignment="middle">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="left" valignment="top" width="0pt">
+<row>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size large
+Referent:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size large
+Prof.
+ Dr.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size large
+Jacques Zuber
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size large
+Author:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size large
+Marc Spörri
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pagenumbering{Roman}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+setcounter{page}{1}
+\end_layout
+
+\end_inset
+
+
 \begin_inset CommandInset toc
 LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pagenumbering{arabic}
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+setcounter{page}{1}
+\end_layout
 
 \end_inset
 
