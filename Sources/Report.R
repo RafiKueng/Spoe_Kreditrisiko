@@ -20,43 +20,6 @@ library(nnet)   #imp.
 library(NeuralNetTools)
 library(neuralnet)
 
-
-
-
-
-
-#find out which model (, binomial regression rain forest, neural network, vector machine etc.) is the best for our data
-#response variable is whether we give a credit or not
--> recommended classification tree, it's mmuch easier to explain than f.e. blackbox neural neutworks' und for allem, predi tion accuracy ist gut! und anschaulich für kunde
--> kleinster baum nehmen, 2 äste
--> dont use too sophisticated models! oder vorsichtig damit
-
-#Presentation
-3 kurze schritte:
-  - was ist das problem? problem erklären
-  - welche modelle habe ich angewendet
-  - conclusion warum das oder das Modell letztlich angewendet wurde.
-
-
-
-###for presentation, only show the most important results (not trial which doesnt give a good output, neural networks f.e.)
-
-
-##Homework
-#1) Exploratory Data Analysis
-
-
-
-
-######### START
-
-
-
-#1. Preparation of the data
-#TODO : in EDUCATION Var gibts es 1 obs. mit -1 -> ändern in 1, da wahrscheinlich tippfehler
-# DITO GUARANTOR 1 obs. mit 2 statt 0/1
-
-
 gc <- read.csv2("C:/Users/Spörri/Desktop/Marc UniNE/SS 17 Seminar of Applied Statistics/Homework/GermanCredit.csv",dec=".",header=T)
 quanti<-c(3,11,23)  #select the columns of the quantitative variables
 #I'm considering INSTALL_RATE (var nr. 14), num_credits (27) and num_dependents (29) as a categorial variable, since 
@@ -330,11 +293,11 @@ logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binom
                  training_full <- gc[ind==1,]
                  training1 <- model1[ind==1,]
                  training2 <- model2[ind==1,]
-                 training3 <- model2[ind==1,]
+                 training3 <- model3[ind==1,]
                  testing_full <- gc[ind==2,]
                  testing1 <- model1[ind==2,]
                  testing2 <- model2[ind==2,]
-                 testing3 <- model2[ind==2,]
+                 testing3 <- model3[ind==2,]
 summary(training1)
 
 #creating the corresponding formulas to prepare the upcoming modelling processus
@@ -348,6 +311,83 @@ gcform_full=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADI
 
                  
 ###3 Modelling Processus
+# Logistic Model
+#-----------------------
+
+# Now we construct a logistic regression for each model (set of variables) using just training data
+# We compare which one has the beteer AIC
+# After we predict using testing data, and compare the missclassification errors
+# Finally, we select the model with smaller error which will be lately compared with the other classification models
+
+mylogit  <- glm(gcform_full, data = training_full, family = "binomial")
+mylogit1 <- glm(gcform_model1, data = training1, family = "binomial")
+mylogit2 <- glm(gcform_model2, data = training2, family = "binomial")
+mylogit3 <- glm(gcform_model3, data = training3, family = "binomial")
+summary(mylogit)
+summary(mylogit1)
+summary(mylogit2)
+summary(mylogit3)
+mylogit$aic
+mylogit1$aic
+mylogit2$aic
+mylogit3$aic
+# Predictions
+# Model FULL
+logit_pred <- predict(mylogit, newdata = testing_full, type = "response")
+logit_model_pred <- rep("0", length(testing_full$RESPONSE))
+logit_model_pred[logit_pred > 0.5] <- "1"
+logit_cm <- table(logit_model_pred, testing_full$RESPONSE)
+# Misclassification error
+logit_error <- 1 - sum(diag(logit_cm))/sum(logit_cm)
+
+# Model 1
+logit_pred1 <- predict(mylogit1, newdata = testing1, type = "response")
+# Confusion matrix
+logit_model_pred1 <- rep("0", length(testing1$RESPONSE))
+logit_model_pred1[logit_pred1 > 0.5] <- "1"
+logit_cm1 <- table(logit_model_pred1, testing1$RESPONSE)
+# Misclassification error
+logit_error1 <- 1 - sum(diag(logit_cm1))/sum(logit_cm1)
+
+# Model 2
+logit_pred2 <- predict(mylogit2, newdata = testing2,type = "response")
+# Confusion matrix
+logit_model_pred2 <- rep("0", length(testing2$RESPONSE))
+logit_model_pred2[logit_pred2 > 0.5] <- "1"
+logit_cm2 <- table(logit_model_pred2, testing2$RESPONSE)
+# Misclassification error
+logit_error2 <- 1 - sum(diag(logit_cm2))/sum(logit_cm2)
+
+# Model 3
+logit_pred3 <- predict(mylogit3, newdata = testing3,type = "response")
+# Confusion matrix
+logit_model_pred3 <- rep("0", length(testing3$RESPONSE))
+logit_model_pred3[logit_pred3 > 0.5] <- "1"
+logit_cm3 <- table(logit_model_pred3, testing3$RESPONSE)
+# Misclassification error
+logit_error3 <- 1 - sum(diag(logit_cm3))/sum(logit_cm3)
+
+# Comparing errors
+logit_error
+logit_error1
+logit_error2
+logit_error3
+# Best model is the third one
+# Nevertheless, error is too high 26.1%
+# and we do not do so well in classifying Bad credit
+
+# Comparing all confusion matrices
+round(prop.table(logit_cm),2)
+round(prop.table(logit_cm1),2)
+round(prop.table(logit_cm2),2)
+round(prop.table(logit_cm3),2)
+# The error of classifying someone with Bad credit as Good credit is higher than
+# the error of classifying someone with Good credit as Bad credit
+
+# More over it seems we do not have a big difference between models 1 and 2
+# Hence, we will keep using only models 1 and 3 for comparisons
+
+
 ###3.1 Classification Tree
 
 #e) Predictions
@@ -675,24 +715,24 @@ data$NUM_DEPENDENTS <- (data$NUM_DEPENDENTS - min(data$NUM_DEPENDENTS))/(max(dat
 
 
 #3.3 Neural Networks
-#for the neuralnet we have to convert all variables in numerical variables
+#for the neuralnet we have to convert all variables in numerical variables, in order to that
+#categorical variables are transformed into dummy variables
 #we do that by the model.matrix function
-
-gc <- model.matrix( 
+model2 <- model.matrix( 
   ~ RESPONSE+CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN, 
-  data = gc
+  data = model2
 )
-head(gc)
-summary(gc)
-str(gc)
+head(model2)
+summary(model2)
+str(model2)
 
 #1. Training Data Set
 library(nnet)
 require(MASS)
 require(nnet)
 
-samp <- c(sample(1:500, 250), sample(501:1000, 250))
-gc.training <- gc[samp, ]
+samp <- c(sample(1:698, 349), sample(699:997, 150))
+gc.training <- model2[samp, ]
 summary(gc.training)
 
 #2. Test Data Set
