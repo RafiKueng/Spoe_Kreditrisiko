@@ -92,7 +92,7 @@ qqPlot(lm(1000/MPG.city ~ Weight + Origin + Type, data = Cars93), simulate = FAL
 #response variable is whether we give a credit or not
 -> recommended classification tree, it's mmuch easier to explain than f.e. blackbox neural neutworks' und for allem, predi tion accuracy ist gut! und anschaulich für kunde
 -> kleinster baum nehmen, 2 äste
--> dont use to sophisticated models! oder vorsichtig damit
+-> dont use too sophisticated models! oder vorsichtig damit
 
 #Presentation
 3 kurze schritte:
@@ -263,11 +263,7 @@ CrossTable(FOREIGN, RESPONSE, digits=2, expected=T,prop.chisq=TRUE)
 #keep the variable since p-value of the chi^2 test is <0.05
 
 
-##2.3 Descriptives Stats of the qualitatives var
-boxplot(split(DURATION,RESPONSE))
-
-
-#Selection of the quantiative var. multicollinearity tests and logistic regression
+##2.2 Selection of the quantiative var. multicollinearity tests and logistic regression
 
 #no Multicollinearity Problems 
 library(psych)
@@ -290,14 +286,15 @@ library(ggcorrplot)
 ggcorrplot(cor(gc.quanti), p.mat = cor_pmat(gc.quanti), hc.order = TRUE, type = "lower")
 
 #boxplots and histograms for the quantitative variables
- hist(DURATION)
- boxplot(split(DURATION,RESPONSE))
- hist(AMOUNT)
- boxplot(split(AMOUNT,RESPONSE))
- hist(AGE)
- boxplot(split(AGE,RESPONSE))
+par(mfrow=c(1,3)) 
+hist(DURATION)
+hist(AMOUNT)
+hist(AGE)
+par(mfrow=c(1,3))
+boxplot(split(DURATION,RESPONSE),xlab="Credit Rating",ylab="DURATION OF CREDIT in months", notch=T,varwidth=T,col=lblue)
+boxplot(split(AMOUNT,RESPONSE),xlab="Credit Rating",ylab="CREDIT AMOUNT", notch=T,varwidth=T,col=lblue)
+boxplot(split(AGE,RESPONSE),xlab="Credit Rating",ylab="AGE", notch=T,varwidth=T,col=lblue)
  
-mache multiple histograms -> alle quant. var hist und box auf einmal in je einer graphik (par?)
 
 INSTALL_RATE_quant<-as.numeric(INSTALL_RATE)
 NUM_DEPENDENTS_quant<-as.numeric(NUM_DEPENDENTS)
@@ -306,7 +303,7 @@ NUM_CREDITS_quant<-as.numeric(NUM_CREDITS)
 ##binomial logistic regression
 # as we have seen above multicollinearity is not that big of a problem, so we do without concerns a binary log. reg. with all the 3 quantitative variables including, they shouldn't disturb each other too much
 logreg_only_new_3_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE,family=binomial(link="logit"),data=gc)
-                 summary(logreg_new_3_quant)
+                 summary(logreg_only_new_3_quant)
 logreg_original_6_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant+NUM_DEPENDENTS_quant+NUM_CREDITS_quant,family=binomial(link="logit"),data=gc)
                  summary(logreg_original_6_quant)
 logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binomial(link="logit"),data=gc)
@@ -319,81 +316,9 @@ logreg_4_quant<-glm(RESPONSE~DURATION+AMOUNT+AGE+INSTALL_RATE_quant,family=binom
                  logregAMOUNT<-glm(RESPONSE~AMOUNT,family=binomial(link="logit"),data=gc)
                  summary(logregAMOUNT) #hochsignifikant
 
- RESPONSE~.                
                  
 ###3 Modelling
 ###3.1 Classification Tree
-# a) fitting the model
-require(rpart)
-set.seed(123456)
-gc.ct<-rpart(RESPONSE~.,method="class",data=gc,cp=0.001)
-
-gc.ct <- rpart(RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN, data = gc, method = "class", control = rpart.control(minsplit = 4, 
-                                                                                    cp = 1e-05))
-gc.ct <- rpart(RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV, method = "class", data = gc, control = rpart.control(minsplit = 4, 
-                                                                                                                                                                                                                                                                                     cp = 1e-05))
-gc.ct
-head(summary(gc.ct) )                             
-
-par(pty = "s")
-plot(gc.ct, cex = 1)
-text(gc.ct, cex = 0.8)
-
-#c) The Complexity Table
-printcp(gc.ct)
-
-par(pty = "s")
-plotcp(gc.ct)
-
-#d) Pruning Trees
-par(pty = "s")
-with(gc.ct, plot(cptable[, 5], xlab = "Tree Number", ylab = "Resubstitution Error (R)", 
-                   type = "b"))
-par(pty = "s")
-with(gc.ct, plot(cptable[, 4], xlab = "Tree Number", ylab = "Cross-Validated Error (R(cv))", 
-                   type = "b"))
-
-par(pty = "s")
-plotcp(gc.ct)
-with(gc.ct, {
-  lines(cptable[, 2] + 1, cptable[, 3], type = "b", col = "red")
-  legend(3, 1, c("Resub. Error", "CV Error", "min(CV Error)+1SE"), lty = c(1, 
-                                                                           1, 2), col = c("red", "black", "black"), bty = "n")
-})
-
-gc.prune <- prune(gc.ct, cp = 0.1)
-summary(gc.prune)
-
-
-require(rpart.plot)
-par(pty="s")
-cols<-ifelse(gc.ct$frame$yval,"yellow","darkred")
-prp(gc.prune,
-    main="",
-    extra=104,
-    nn=TRUE,
-    fallen.leaves=TRUE,
-    branch=0.5,
-    faclen=0,
-    trace=1,
-    shadow.col="gray",
-    branch.lty=3,
-    split.cex=1.2,
-    split.prefix="is ",
-    split.suffix="?",
-    col=cols, border.col=cols,
-    split.box.col="lightgray",
-    split.border.col="darkgray",
-    split.round=0.5)
-
-
-require("partykit")
-plot(as.party(gc.prune),tp_args= list(id=FALSE))
-
-par(pty="s")
-trellis.par.set(theme=col.whitebg())
-plot3<-xyplot()
-
 
 #e) Predictions
 library(knitr)
@@ -403,22 +328,14 @@ table(gc.pred, RESPONSE)
 library(gmodels)
 CrossTable(x = RESPONSE, y = gc.pred, prop.chisq = FALSE)
 
-
-
-
-                 
 summary(RESPONSE~.,data=gc)
 
 gc.ct<-rpart(RESPONSE~.,method="class",data=gc,cp=0.001)
 gc.ct<-rpart(RESPONSE~., main="",type=4,extra=4,faclen=0)
 cols<-ifelse          #better graph
 
-
 print(gc.ct)
 summary(gc.ct)
-
-
-
 
 
 #looking for the best parameter of complexity
@@ -435,15 +352,84 @@ plot(fit.ct.boot)
 #use boottrap to because decision tree is not stable
 
 
-##CART model decision tree
+
+# Classification tree from R code of Workshop 2
+
+library(rpart)
+
+#set.seed(010666)
 
 
+gcform_reduced=RESPONSE ~ CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+RADIO.TV+EDUCATION+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_SINGLE+CO.APPLICANT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+FOREIGN
+gcform_all=RESPONSE ~ OBS.+CHK_ACCT+DURATION+HISTORY+NEW_CAR+USED_CAR+FURNITURE+RADIO.TV+EDUCATION+RETRAINING+AMOUNT+SAV_ACCT+EMPLOYMENT+INSTALL_RATE+MALE_DIV+MALE_SINGLE+MALE_MAR_or_WID+CO.APPLICANT+GUARANTOR+PRESENT_RESIDENT+REAL_ESTATE+PROP_UNKN_NONE+AGE+OTHER_INSTALL+RENT+OWN_RES+JOB+NUM_DEPENDENTS+TELEPHONE+FOREIGN
+#gcform_all=regression formula for all variables due to the fact that unfortunately RESPONSE~. produces errors
 
+gc.ct<-rpart(formula=gcform_reduced,method="class",data=gc,cp=0.001)
+print(gc.ct)
+summary(gc.ct)
 
+gc.ct<-gc %>%
+  rpart(formula=gcform_reduced,method="class",cp=0.001) %>%
+  summary()
 
+#par(mar=numeric(4))
+par(mar=c(0.5, 1, 0.5, 1))
+plot(gc.ct,uniform=TRUE)
+text(gc.ct,use.n=TRUE,all=TRUE,cex=0.6)
 
+options(digits=5)
+printcp(gc.ct)
+plotcp(gc.ct)
 
+# Using the 1-SE method
 
+cp<-gc.ct$cptable
+opt<-which.min(gc.ct$cptable[,"xerror"])
+r<-cp[, 4][opt]+cp[, 5][opt]
+rmin<-min(seq(1:dim(cp)[1])[cp[, 4] < r])
+cp0<-cp[rmin,1]
+cat("size chosen was",cp[rmin,2]+1,"\n")
+gc.ct1<-prune(gc.ct,cp=1.01*cp0)
+summary(gc.ct1)
+
+x<-factor(predict(gc.ct1,type="class"))
+table(true=RESPONSE,predicted=x)
+
+library(gmodels)
+gc.pred<-predict(gc.ct1,type="class")
+CrossTable(x = RESPONSE, y = gc.pred, prop.chisq=FALSE)
+
+plot(gc.ct1,branch=0.4,uniform=TRUE)
+text(gc.ct1,digits=3,use.n=TRUE,cex=0.6)
+
+library(rpart.plot)
+rpart.plot(gc.ct1,main="")
+prp(gc.ct1,main="",type=4,extra=4,faclen=0)
+rpart.plot(gc.ct1,main="",extra=104,under=TRUE,faclen=0)
+
+cols<-ifelse(gc.ct1$frame$yval,"green4","darkred")
+prp(gc.ct1
+    ,main="CART model tree"
+    ,extra=104           # display prob and percent of obs
+    ,nn=TRUE             # display the node numbers
+    ,fallen.leaves=TRUE  # put the leaves on the bottom of the page
+    ,branch=.5           # change angle of branch lines
+    ,faclen=0            # do not abbreviate factor levels
+    ,trace=1             # print the automatically calculated cex
+    ,shadow.col="gray"   # shadows under the leaves
+    ,branch.lty=3        # draw branches using dotted lines
+    ,split.cex=1.2       # make the split text larger than the node text
+    ,split.prefix="is "  # put "is " before split text
+    ,split.suffix="?"    # put "?" after split text
+    ,col=cols, border.col=cols   # green if survived
+    ,split.box.col="lightgray"   # lightgray split boxes (default is white)
+    ,split.border.col="darkgray" # darkgray border on split boxes
+    ,split.round=.5)
+
+library(partykit)
+plot(as.party(gc.ct1),tp_args = list(id = FALSE))
+
+##end of classification tree from R code of Workshop 2
 
 
 
